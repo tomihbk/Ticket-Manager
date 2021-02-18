@@ -7,6 +7,7 @@ import SignUp from '@/views/auth/SignUp.vue'
 import Ticket from '@/views/Ticket.vue'
 import Tickets from '@/views/Tickets.vue'
 import Users from '@/views/Users.vue'
+import PageNotFound from '@/views/PageNotFound.vue'
 
 Vue.use(VueRouter)
 
@@ -44,6 +45,7 @@ export default new VueRouter({
       name: 'login',
       component: Login
     },
+    { path: '*', component: PageNotFound },
     {
       path: '/signup',
       name: 'signup',
@@ -51,5 +53,3 @@ export default new VueRouter({
     }
   ]
 })
-
-
