@@ -39,11 +39,11 @@ export default {
   data () {
     return {
       drawer: false,
-      links:[
-          {icon:'mdi-view-dashboard',text:'Dashboard',route:'/'},
-          {icon:'mdi-account-group',text:'Clients',route:'/users'},
-          {icon:'mdi-note-text',text:'Tickets',route:'/tickets'},
-          {icon:'mdi-archive',text:'Archive',route:'/archive'}
+      links: [
+        { icon: 'mdi-view-dashboard', text: 'Dashboard', route: '/' },
+        { icon: 'mdi-account-group', text: 'Clients', route: '/users' },
+        { icon: 'mdi-note-text', text: 'Tickets', route: '/tickets' },
+        { icon: 'mdi-archive', text: 'Archive', route: '/archive' }
       ]
     }
   }
