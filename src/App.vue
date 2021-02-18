@@ -1,7 +1,10 @@
 <template>
   <v-app>
-    <v-main class="grey lighten-5">
+    <v-main class="grey lighten-5" v-if="$route.name != 'login'">
       <Navbar />
+      <router-view></router-view>
+    </v-main>
+    <v-main class="grey lighten-5" v-else>
       <router-view></router-view>
     </v-main>
   </v-app>
@@ -19,3 +22,10 @@ export default {
   })
 }
 </script>
+
+<style lang="scss">
+v-main {
+  margin: 0 !important;
+  width: 100% !important;
+}
+</style>
