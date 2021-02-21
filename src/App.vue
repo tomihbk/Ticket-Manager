@@ -1,10 +1,10 @@
 <template>
   <v-app>
-    <v-main class="grey lighten-5" v-if="$route.name != 'login'">
-      <Navbar />
+    <v-main class="grey lighten-5" v-if="$route.name === 'login' || $route.name === 'signup'">
       <router-view></router-view>
     </v-main>
     <v-main class="grey lighten-5" v-else>
+      <Navbar />
       <router-view></router-view>
     </v-main>
   </v-app>
