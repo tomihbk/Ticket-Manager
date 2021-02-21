@@ -21,7 +21,7 @@
         <hr style="margin:1.5em;color:red;border:.2px solid #d5d5d5;" />
         <span>Vous n'avez pas encore un compte</span>
         <p></p>
-        <v-btn depressed outlined right color="green">créer un compte</v-btn>
+        <v-btn depressed outlined right color="green" to="signup">créer un compte</v-btn>
       </v-sheet>
     </v-container>
   </div>
