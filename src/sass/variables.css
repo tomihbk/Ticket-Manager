@@ -1,0 +1,53 @@
+@import url("https://fonts.googleapis.com/css?family=Manrope:300,400,400i,600,700,800&display=swap");
+#app {
+  font-family: "Manrope", sans-serif !important;
+}
+
+#app .display-4 {
+  font-family: "Manrope", sans-serif !important;
+}
+
+#app .display-3 {
+  font-family: "Manrope", sans-serif !important;
+}
+
+#app .display-2 {
+  font-family: "Manrope", sans-serif !important;
+}
+
+#app .display-1 {
+  font-family: "Manrope", sans-serif !important;
+}
+
+#app .headline {
+  font-family: "Manrope", sans-serif !important;
+}
+
+#app .title {
+  font-family: "Manrope", sans-serif !important;
+}
+
+#app .subtitle-1 {
+  font-family: "Manrope", sans-serif !important;
+}
+
+#app .subtitle-2 {
+  font-family: "Manrope", sans-serif !important;
+}
+
+#app .body-1 {
+  font-family: "Manrope", sans-serif !important;
+}
+
+#app .body-2 {
+  font-family: "Manrope", sans-serif !important;
+}
+
+#app .caption {
+  font-family: "Manrope", sans-serif !important;
+}
+
+#app .overline {
+  font-family: "Manrope", sans-serif !important;
+}
+/*# sourceMappingURL=variables.css.map */
