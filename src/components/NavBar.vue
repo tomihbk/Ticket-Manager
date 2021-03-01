@@ -11,8 +11,8 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn depressed>
-        <span>Sign Out</span>
+      <v-btn depressed @click="logOut">
+        <span>Se Deconnecter</span>
         <v-icon right>mdi-exit-to-app</v-icon>
       </v-btn>
 
@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import firebase from 'firebase'
 export default {
   name: 'NavBar',
   data () {
@@ -50,6 +51,14 @@ export default {
   methods: {
     goHome () {
       this.$router.push({ name: 'dashboard' })
+    },
+    async logOut () {
+      try {
+        await firebase.auth().signOut()
+        this.$router.push({ name: 'login' })
+      } catch (err) {
+        console.log(err)
+      }
     }
   }
 }
