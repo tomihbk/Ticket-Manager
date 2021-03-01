@@ -17,6 +17,11 @@
           <v-text-field v-model="email" label="Email" :rules="[rules.required, rules.email]" filled></v-text-field>
           <v-text-field type="password" v-model="password" :rules="[rules.required]" label="Mot de Passe" filled></v-text-field>
           <v-btn large dark color="green" depressed @click="validate">Se Connecter</v-btn>
+
+          <!-- Elément ne s'affiche pas si feedback est null -->
+          <p class="feedback" v-if="feedback">
+            {{this.feedback}}
+          </p>
         </v-form>
         <hr style="margin:1.5em;color:red;border:.2px solid #d5d5d5;" />
         <span>Vous n'avez pas encore un compte</span>
@@ -28,12 +33,16 @@
 </template>
 
 <script>
+import db from '@/firebase/api'
+import firebase from 'firebase'
+
 export default {
   name: 'login',
   data () {
     return {
       email: null,
       password: null,
+      feedback: null,
       rules: {
         required: value => !!value || 'Champ obligatoire',
         email: value => {
@@ -45,8 +54,40 @@ export default {
   },
   methods: {
     validate () {
-      console.log('Validating')
       this.$refs.form.validate()
+      console.log(this.email)
+      console.log(this.password)
+
+      if (!this.password || !this.email) {
+        return false
+      }
+      console.log('validated')
+      this.login()
+    },
+    async login () {
+      try {
+        this.feedback = null
+        const connectedUser = await firebase.auth().signInWithEmailAndPassword(this.email, this.password)
+        this.$router.push({ name: 'dashboard' })
+      } catch (err) {
+        console.log(err)
+        switch (err.code) {
+          case 'auth/user-not-found':
+            this.feedback = "L'utilisateur n'existe pas."
+            break
+
+          case 'auth/wrong-password':
+            this.feedback = 'Mot de passe incorrect.'
+            break
+
+          case 'auth/invalid-email':
+            this.feedback = "L'email est mal saisi."
+            break
+
+          default:
+            break
+        }
+      }
     }
   }
 }
@@ -76,46 +117,14 @@ h1:nth-child(2) {
   margin-bottom: 1em;
 }
 .login-container {
-  background: #4e54c8; /* fallback for old browsers */
-  background: -webkit-linear-gradient(
-    to bottom,
-    #8f94fb,
-    #4e54c8
-  ); /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(
-    to bottom,
-    #8f94fb,
-    #4e54c8
-  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-
-  background: -webkit-linear-gradient(
-    to right,
-    #0cebeb,
-    #20e3b2,
-    #29ffc6
-  ); /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(
-    to right,
-    #0cebeb,
-    #20e3b2,
-    #29ffc6
-  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-
-  background: #2193b0; /* fallback for old browsers */
-  background: -webkit-linear-gradient(
-    to bottom,
-    #6dd5ed,
-    #2193b0
-  ); /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(
-    to bottom,
-    #6dd5ed,
-    #2193b0
-  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-
   background-image: url("https://walker-web.imgix.net/cms/Gradient_builder_2.jpg");
-  /*background-image: url("https://products.ls.graphics/mesh-gradients/images/08.-Violet-Blue.jpg");*/
   background-position: center left;
   height: 100vh;
 }
+
+.login-container  .feedback{
+    color: red;
+margin-top: 2em;
+margin-bottom: 0;
+  }
 </style>
