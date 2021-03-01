@@ -8,40 +8,56 @@ import Ticket from '@/views/Ticket.vue'
 import Tickets from '@/views/Tickets.vue'
 import Users from '@/views/Users.vue'
 import PageNotFound from '@/views/PageNotFound.vue'
+import firebase from 'firebase'
 
 Vue.use(VueRouter)
 
-export default new VueRouter({
+const router = new VueRouter({
   mode: 'history',
-  base: process.env.BASE_URL,
   routes: [
     {
-      path: '/dashboard',
+      path: '/',
+      alias: '/dashboard',
       name: 'dashboard',
-      component: Dashboard
+      component: Dashboard,
+      meta: {
+        requiresAuth: true // This component requires auth before acessing
+      }
     },
     {
       path: '/users',
       name: 'users',
-      component: Users
+      component: Users,
+      meta: {
+        requiresAuth: true // This component requires auth before acessing
+      }
     },
     {
       path: '/ticket/:id',
       name: 'ticket',
-      component: Ticket
+      component: Ticket,
+      meta: {
+        requiresAuth: true // This component requires auth before acessing
+      }
     },
     {
       path: '/tickets',
       name: 'tickets',
-      component: Tickets
+      component: Tickets,
+      meta: {
+        requiresAuth: true // This component requires auth before acessing
+      }
     },
     {
       path: '/archive',
       name: 'archive',
-      component: Archive
+      component: Archive,
+      meta: {
+        requiresAuth: true // This component requires auth before acessing
+      }
     },
     {
-      path: '/',
+      path: '/login',
       name: 'login',
       component: Login
     },
@@ -57,3 +73,20 @@ export default new VueRouter({
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  // check to see if route requires Auth by checking the metadata
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    const currentUser = firebase.auth().currentUser // Get current user
+
+    if (currentUser) { // Check if user is connected
+      next() // if connected, user can continue to route
+    } else {
+      next({ name: 'login' }) // if not, user is taken to login page
+    }
+  } else {
+    next()// if route doesn't requires Auth, continue navigation
+  }
+})
+
+export default router
