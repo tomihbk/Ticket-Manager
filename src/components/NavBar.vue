@@ -1,8 +1,8 @@
 <template>
   <nav>
-    <v-toolbar flat app>
+    <v-app-bar flat app>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title class="text-uppercase">
+      <v-toolbar-title class="text-uppercase toolbar-name" @click="goHome">
         <span class="font-weight-light">
           Ticket
         </span>
@@ -16,7 +16,7 @@
         <v-icon right>mdi-exit-to-app</v-icon>
       </v-btn>
 
-    </v-toolbar>
+    </v-app-bar>
 
     <v-navigation-drawer app v-model="drawer" class="teal">
       <v-list rounded>
@@ -46,9 +46,18 @@ export default {
         { icon: 'mdi-archive', text: 'Archive', route: '/archive' }
       ]
     }
+  },
+  methods: {
+    goHome () {
+      this.$router.push({ name: 'dashboard' })
+    }
   }
 }
 </script>
 
 <style>
+.toolbar-name:hover{
+  cursor: pointer;
+
+}
 </style>
