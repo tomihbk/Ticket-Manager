@@ -16,7 +16,7 @@ export default new VueRouter({
   base: process.env.BASE_URL,
   routes: [
     {
-      path: '/',
+      path: '/dashboard',
       name: 'dashboard',
       component: Dashboard
     },
@@ -41,11 +41,15 @@ export default new VueRouter({
       component: Archive
     },
     {
-      path: '/login',
+      path: '/',
       name: 'login',
       component: Login
     },
-    { path: '*', component: PageNotFound },
+    {
+      path: '*',
+      name: '404',
+      component: PageNotFound
+    },
     {
       path: '/signup',
       name: 'signup',
