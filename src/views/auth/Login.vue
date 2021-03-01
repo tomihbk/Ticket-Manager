@@ -33,6 +33,7 @@
 </template>
 
 <script>
+// eslint-disable-next-line
 import db from '@/firebase/api'
 import firebase from 'firebase'
 
@@ -67,7 +68,7 @@ export default {
     async login () {
       try {
         this.feedback = null
-        const connectedUser = await firebase.auth().signInWithEmailAndPassword(this.email, this.password)
+        await firebase.auth().signInWithEmailAndPassword(this.email, this.password)
         this.$router.push({ name: 'dashboard' })
       } catch (err) {
         console.log(err)
