@@ -8,6 +8,9 @@ import Ticket from '@/views/Ticket.vue'
 import Tickets from '@/views/Tickets.vue'
 import Users from '@/views/Users.vue'
 import PageNotFound from '@/views/PageNotFound.vue'
+import AddTicket from '@/views/manage/AddTicket.vue'
+import AddUser from '@/views/manage/AddUser.vue'
+import ManageUser from '@/views/manage/ManageUser.vue'
 import firebase from 'firebase'
 
 Vue.use(VueRouter)
@@ -28,6 +31,7 @@ const router = new VueRouter({
       path: '/users',
       name: 'users',
       component: Users,
+      props: true,
       meta: {
         requiresAuth: true // This component requires auth before acessing
       }
@@ -70,6 +74,30 @@ const router = new VueRouter({
       path: '/signup',
       name: 'signup',
       component: SignUp
+    },
+    {
+      path: '/add-user',
+      name: 'adduser',
+      component: AddUser,
+      meta: {
+        requiresAuth: true // This component requires auth before acessing
+      }
+    },
+    {
+      path: '/add-ticket',
+      name: 'addticket',
+      component: AddTicket,
+      meta: {
+        requiresAuth: true // This component requires auth before acessing
+      }
+    }, {
+      path: '/manage-user/:client_id',
+      name: 'manageuser',
+      component: ManageUser,
+      props: true,
+      meta: {
+        requiresAuth: true // This component requires auth before acessing
+      }
     }
   ]
 })
