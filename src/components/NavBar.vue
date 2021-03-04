@@ -39,7 +39,7 @@ export default {
   name: 'NavBar',
   data () {
     return {
-      drawer: false,
+      drawer: true,
       links: [
         { icon: 'mdi-view-dashboard', text: 'Dashboard', route: '/' },
         { icon: 'mdi-account-group', text: 'Clients', route: '/users' },
@@ -65,8 +65,7 @@ export default {
 </script>
 
 <style>
-.toolbar-name:hover{
+.toolbar-name:hover {
   cursor: pointer;
-
 }
 </style>
