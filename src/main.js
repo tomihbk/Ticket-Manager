@@ -3,6 +3,15 @@ import App from './App.vue'
 import router from './router'
 import vuetify from './plugins/vuetify'
 import firebase from 'firebase'
+import InstantSearch from 'vue-instantsearch'
+import VueAutosuggest from 'vue-autosuggest'
+import VueSignaturePad from 'vue-signature-pad'
+
+Vue.use(VueSignaturePad)
+
+Vue.use(VueAutosuggest)
+
+Vue.use(InstantSearch)
 
 Vue.config.productionTip = false
 
