@@ -12,8 +12,13 @@
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "firebase": "^8.2.8",
+    "moment": "^2.29.1",
     "vue": "^2.6.11",
+    "vue-autosuggest": "^2.2.0",
+    "vue-instantsearch": "^3.5.0",
     "vue-router": "^3.2.0",
+    "vue-server-renderer": "^2.6.12",
+    "vue-signature-pad": "^2.0.2",
     "vuetify": "^2.4.4",
     "yarn": "^1.22.10"
   },
