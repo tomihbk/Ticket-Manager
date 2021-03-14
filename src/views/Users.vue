@@ -53,6 +53,7 @@
 
 <script>
 import db from '@/firebase/api'
+import algoindex from '@/algolia/clientsIndices'
 export default {
   data: () => ({
     footerProps: { 'items-per-page-options': [30, 50, 100] },
@@ -109,9 +110,6 @@ export default {
       // get item id and send via router prop to manage page
       this.$router.push({ name: 'manageuser', params: { client_data: item, client_id: item.id } })
     },
-    getPhoto (item) {
-      return item.picture
-    },
     deleteItem (item) {
       this.editedIndex = this.clients.indexOf(item)
       this.editedItem = Object.assign({}, item)
@@ -121,6 +119,7 @@ export default {
     async deleteItemConfirm () {
       const deletedUser = this.clients[this.editedIndex]
       await db.collection('clients').doc(deletedUser.id).delete()
+      await algoindex.deleteObjects([deletedUser.id])
       this.clients.splice(this.editedIndex, 1)
       this.closeDelete()
       this.toaster.snackbar = true
