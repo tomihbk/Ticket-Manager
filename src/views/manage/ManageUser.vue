@@ -56,6 +56,7 @@
 
 <script>
 import db from '@/firebase/api'
+import algoindex from '@/algolia/clientsIndices'
 export default {
   data: () => ({
     firestoreID: null,
@@ -116,6 +117,8 @@ export default {
         try {
           this.loading = true
           await db.collection('clients').doc(this.firestoreID).set(dataWithoutNull)
+          dataWithoutNull.objectID = this.firestoreID
+          await algoindex.saveObjects([dataWithoutNull])
           this.loading = false
           this.$router.push({ name: 'users' })
         } catch (err) {
