@@ -11,6 +11,8 @@ import PageNotFound from '@/views/PageNotFound.vue'
 import AddTicket from '@/views/manage/AddTicket.vue'
 import AddUser from '@/views/manage/AddUser.vue'
 import ManageUser from '@/views/manage/ManageUser.vue'
+import ManageTicket from '@/views/manage/ManageTicket.vue'
+import EditTicket from '@/views/manage/EditTicket.vue'
 import firebase from 'firebase'
 
 Vue.use(VueRouter)
@@ -90,10 +92,29 @@ const router = new VueRouter({
       meta: {
         requiresAuth: true // This component requires auth before acessing
       }
-    }, {
+    },
+    {
       path: '/manage-user/:client_id',
       name: 'manageuser',
       component: ManageUser,
+      props: true,
+      meta: {
+        requiresAuth: true // This component requires auth before acessing
+      }
+    },
+    {
+      path: '/manage-ticket/:ticket_id',
+      name: 'manageticket',
+      component: ManageTicket,
+      props: true,
+      meta: {
+        requiresAuth: true // This component requires auth before acessing
+      }
+    },
+    {
+      path: '/edit-ticket/:ticket_id',
+      name: 'editticket',
+      component: EditTicket,
       props: true,
       meta: {
         requiresAuth: true // This component requires auth before acessing
