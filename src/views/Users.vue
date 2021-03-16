@@ -1,7 +1,7 @@
 <template>
   <div class="users">
     <v-container class="my-5">
-      <v-data-table :headers="headers" :items="clients" :loading="loadingData" :search="search" sort-by="name" :footer-props="footerProps" class="elevation-1">
+      <v-data-table :headers="headers" :items="clients" :loading="loadingData" :search="search" sort-by="name" hide-default-footer :footer-props="footerProps" class="elevation-1">
         <template v-slot:top>
           <v-toolbar flat>
             <v-toolbar-title class="font-weight-bold text-h5">Liste de clients</v-toolbar-title>
@@ -37,8 +37,8 @@
           </v-icon>
         </template>
 
-        <template v-slot:[`item.picture`]="{ item }">
-          <img :src='getPhoto(item)' width="100" height="100" />
+         <template v-slot:[`item.mobile`]="{ item }">
+          {{item.mobile}} / {{item.fixe}}
         </template>
 
         <v-data-footer :items-per-page-options="[10,30,60,100]"></v-data-footer>
@@ -54,6 +54,7 @@
 <script>
 import db from '@/firebase/api'
 import algoindex from '@/algolia/clientsIndices'
+import firebase from 'firebase'
 export default {
   data: () => ({
     footerProps: { 'items-per-page-options': [30, 50, 100] },
@@ -65,7 +66,7 @@ export default {
       { text: 'Entreprise', align: 'start', value: 'company' },
       { text: 'Nom', value: 'surname' },
       { text: 'Prénom', value: 'name' },
-      { text: 'Téléphone', value: 'mobile' },
+      { text: 'Téléphone / Fixe', value: 'mobile' },
       { text: 'Adresse', value: 'address.address1' },
       { text: 'Localité', value: 'address.locality' },
       { text: 'Email', value: 'email' },
@@ -117,13 +118,21 @@ export default {
     },
 
     async deleteItemConfirm () {
-      const deletedUser = this.clients[this.editedIndex]
-      await db.collection('clients').doc(deletedUser.id).delete()
-      await algoindex.deleteObjects([deletedUser.id])
-      this.clients.splice(this.editedIndex, 1)
-      this.closeDelete()
-      this.toaster.snackbar = true
-      this.toaster.text = `${deletedUser.company ? deletedUser.company : deletedUser.name} a été effacé(e).`
+      try {
+        const deletedUser = this.clients[this.editedIndex]
+        await db.collection('clients').doc(deletedUser.id).delete()
+        await algoindex.deleteObjects([deletedUser.id])
+        const statsRef = db.collection('stats').doc('stats')
+        await statsRef.update({
+          'total-clients': firebase.firestore.FieldValue.increment(-1)
+        })
+        this.clients.splice(this.editedIndex, 1)
+        this.closeDelete()
+        this.toaster.snackbar = true
+        this.toaster.text = `${deletedUser.company ? deletedUser.company : deletedUser.name} a été effacé(e).`
+      } catch (err) {
+        console.log(err)
+      }
     },
 
     close () {
