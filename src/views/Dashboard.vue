@@ -26,14 +26,26 @@
 </template>
 
 <script>
+import db from '@/firebase/api'
 export default {
   data () {
     return {
       btnData: [
-        { icon: 'mdi-folder-open-outline', text: 'Tickets ouverts', color: 'green', total: 14, route: '/tickets' },
-        { icon: 'mdi-package-variant-closed', text: 'Tickets fermés', color: 'brown', total: 35, route: '/archive' },
-        { icon: 'mdi-account-group', text: 'Clients', color: 'purple', total: 18, route: '/users' }
+        { icon: 'mdi-folder-open-outline', text: 'Tickets ouverts', color: 'green', total: null, route: '/tickets' },
+        { icon: 'mdi-package-variant-closed', text: 'Tickets fermés', color: 'brown', total: null, route: '/archive' },
+        { icon: 'mdi-account-group', text: 'Clients', color: 'purple', total: null, route: '/users' }
       ]
+    }
+  },
+  beforeMount () {
+    this.initialize()
+  },
+  methods: {
+    async initialize () {
+      const allStatsData = await db.collection('stats').doc('stats').get()
+      this.btnData[0].total = allStatsData.data()['total-opened-tickets']
+      this.btnData[1].total = allStatsData.data()['total-closed-tickets']
+      this.btnData[2].total = allStatsData.data()['total-clients']
     }
   }
 }
