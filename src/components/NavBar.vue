@@ -9,13 +9,21 @@
         <span>Manager</span>
       </v-toolbar-title>
 
-      <v-spacer></v-spacer>
-
-      <v-btn depressed @click="logOut">
-        <span>Se Deconnecter</span>
-        <v-icon right>mdi-exit-to-app</v-icon>
-      </v-btn>
-
+      <v-fab-transition>
+        <v-speed-dial v-model="fab" fab dark absolute right direction="bottom" :open-on-hover="false" transition='slide-y-reverse-transition'>
+          <template v-slot:activator>
+            <v-btn v-model="fab" color="pink" large dark rounded depressed>
+              <span>AJOUTER<v-icon>mdi-plus</v-icon></span>
+            </v-btn>
+          </template>
+          <v-btn dark depressed rounded color="purple" class="mr-5" to="add-user">
+            <v-icon>mdi-plus</v-icon>Client
+          </v-btn>
+          <v-btn dark depressed rounded color="green" class="mr-5" to="add-ticket">
+            <v-icon>mdi-plus</v-icon> Ticket
+          </v-btn>
+        </v-speed-dial>
+      </v-fab-transition>
     </v-app-bar>
 
     <v-navigation-drawer app v-model="drawer" class="teal">
@@ -29,6 +37,11 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
+
+      <v-btn depressed @click="logOut" absolute bottom class="ml-5">
+        <span>Se Deconnecter</span>
+        <v-icon right>mdi-exit-to-app</v-icon>
+      </v-btn>
     </v-navigation-drawer>
   </nav>
 </template>
@@ -39,6 +52,7 @@ export default {
   name: 'NavBar',
   data () {
     return {
+      fab: false,
       drawer: true,
       links: [
         { icon: 'mdi-view-dashboard', text: 'Dashboard', route: '/' },
