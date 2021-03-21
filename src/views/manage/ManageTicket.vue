@@ -6,7 +6,9 @@
           <v-card-text class="pb-0">
             <p class="display-1 text--primary font-weight-bold">
               Ticket N° {{ticket.ticketID}}
-
+              <v-btn depressed fab absolute small right direction="bottom" @click="modifyTicket">
+                <v-icon>mdi-pencil</v-icon>
+              </v-btn>
               <v-chip v-if="ticket.priority" class="ma-2" small color="red" text-color="white">
                 IMPORTANT
                 <v-icon right>
@@ -49,30 +51,30 @@
                 </tr>
               </tbody>
             </v-simple-table>
-            <template v-if="ticket.images">
+            <template>
               <hr style="width:100%; border:1px dashed gray" class="mb-5" />
-              <p class="tm-5">Image(s) :</p>
-              <div class="gallery">
-                <v-dialog v-model="dialog" width="80%">
-                  <template v-slot:activator="{ on, attrs }">
-                    <span color="red lighten-2" dark v-bind="attrs" v-on="on" @click="selectImage(img)" v-for="(img,i) in ticket.images" :key="i">
-                      <v-img class="mini-images" :src="img.urlImage" width="150px" height="150px" />
-                    </span>
-                  </template>
+              <v-file-input accept="image/*" :loading="imageLoading" clearable label="Importer une/des image(s)" @change="uploadPhotos" multiple dense></v-file-input>
+              <p class="tm-5">Image(s) : </p>
+              <v-row justify="center" v-if="gallery">
+                <template v-for="(img,i) in reversedGallery">
+                  <div class="gallery" :key="i">
+                    <v-img class="mini-images" :src="img.urlImage" width="150px" height="150px" @click="selectImage(img,i)" />
+                  </div>
+                </template>
+                <v-dialog v-model="dialog" v-if="dialog" width="80%">
                   <v-card>
-                    <v-card-text v-if="selectedImage">
-                      <v-img :src="selectedImage.urlImage" />
+                    <v-card-text>
+                      <img :src="selectedImage.urlImage" width="100%" />
                     </v-card-text>
-                    <v-divider style="width:100%"></v-divider>
                     <v-card-actions>
                       <v-spacer></v-spacer>
-                      <v-btn color="red" text @click="dialog = false">
+                      <v-btn color="red" text @click="deletePhoto">
                         Effacer
                       </v-btn>
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
-              </div>
+              </v-row>
             </template>
             <template v-if="ticket.signature">
               <hr style="width:100%; border:1px dashed gray" class="my-5" />
@@ -99,19 +101,23 @@
                 </template>
                 <v-textarea v-model="historyComment" label="Commentaire..." solo>
                   <template v-slot:append>
-                    <v-btn class="mx-0 font-weight-bold" color="blue" dark depressed @click="comment">
+                    <v-btn class="mx-0 font-weight-bold" color="blue" small dark depressed @click="comment">
                       ajouter
                     </v-btn>
                   </template>
                 </v-textarea>
               </v-timeline-item>
               <v-slide-x-transition v-if="events" group>
-                <v-timeline-item v-for="(event,i) in timeline" :key="i" class="mb-4" color="green" small>
+                <v-timeline-item v-for="(event,i) in timeline" :key="i" class="mb-4" color="green" small style="display:flex;flex-wrap:wrap;">
+                  <!-- TODO Resolve problem with text overflowing on mobile and desktop -->
                   <v-row justify="space-between" style="align-items: center;">
-                    <v-col cols="7" style="white-space: pre;" v-text="event.message"></v-col>
-                    <v-col class="text-right" cols="5">
-                      {{getDataTime(event.created.at)}}
-                      <br />{{event.created.by.name}} {{event.created.by.surname}}
+                    <v-col>
+                      <v-card elevation="1">
+                        <v-card-text class="black--text" style="white-space: pre-line">{{event.message}}</v-card-text>
+                        <v-card-actions style="justify-content: end;" class="text-caption grey--text text--lighten-1">
+                          {{getDataTime(event.created.at)}} | {{event.created.by.name}} {{event.created.by.surname}}
+                        </v-card-actions>
+                      </v-card>
                     </v-col>
                   </v-row>
                 </v-timeline-item>
@@ -125,6 +131,7 @@
 </template>
 
 <script>
+
 import moment from 'moment'
 import db from '@/firebase/api'
 import firebase from 'firebase'
@@ -135,14 +142,19 @@ export default {
     selectedImage: null,
     events: [],
     historyComment: null,
-    historyData: null
+    historyData: null,
+    imageLoading: false,
+    gallery: []
   }),
-  beforeMount () {
+  mounted () {
     this.initialize()
   },
   computed: {
     timeline () {
       return this.events.slice().reverse()
+    },
+    reversedGallery () {
+      return this.gallery.slice().reverse()
     }
   },
   methods: {
@@ -154,14 +166,86 @@ export default {
           const ticket = document.data()
           ticket.id = document.id
           this.ticket = ticket
-          if (ticket.history) {
-            this.events = ticket.history
-          } else {
-            this.events = []
-          }
-        })
+        }
+        )
+
+      this.events = this.ticket.history
+
+      if (this.ticket.history) {
+        console.log(Object.keys(this.ticket.history).length)
+        this.events = []
+        for (let i = 0; i < Object.keys(this.ticket.history).length; i++) {
+          this.events.push(
+            {
+              created: {
+                at: this.ticket.history[i].created.at,
+                by: {
+                  name: this.ticket.history[i].created.by.name,
+                  surname: this.ticket.history[i].created.by.surname,
+                  techID: this.ticket.history[i].created.by.techID
+                }
+              },
+              message: this.ticket.history[i].message
+            }
+          )
+        }
+      }
+      console.log(this.events)
+      if (this.ticket.images || !this.ticket.images === '') {
+        for (var element in this.ticket.images) {
+          var image = this.ticket.images[element]
+          this.gallery.push({ pathToStorage: image.pathToStorage, urlImage: image.urlImage })
+        }
+      }
+      // console.log(this.events)
+    },
+    modifyTicket () {
+      this.$router.push({ name: 'editticket', params: { ticket_id: this.$route.params.ticket_id } })
+    },
+    async deletePhoto () {
+      try {
+        // this.gallery.splice(this.selectImage.index, 1)
+        this.gallery.splice(this.gallery.findIndex(v => v.urlImage === this.selectedImage.urlImage), 1)
+        this.dialog = false
+
+        const storageRef = await firebase.storage().ref().child(this.selectedImage.pathToStorage)
+        await storageRef.delete()
+
+        await db.collection('tickets').doc(this.$route.params.ticket_id).update({
+          images: this.gallery
+        }, { merge: true })
+      } catch (err) {
+        console.log(err)
+      }
+    },
+    async uploadPhotos (photos) {
+      // Upload images to firestore
+      console.log(photos)
+      try {
+        this.imageLoading = true
+        for (let i = 0; i < photos.length; i++) {
+          const storageRef = firebase.storage().ref(`/tickets/${this.ticket.id}/${photos[i].name}`)
+
+          var uploadSnapshot = await storageRef.put(photos[i])
+          const fileURL = await storageRef.getDownloadURL()
+
+          this.gallery.push({ urlImage: fileURL, pathToStorage: uploadSnapshot.metadata.fullPath })
+
+          console.log(uploadSnapshot)
+          console.log('uploading images to firestore')
+        }
+
+        await db.collection('tickets').doc(this.$route.params.ticket_id).update({
+          images: this.gallery
+        }, { merge: true })
+        this.imageLoading = false
+      } catch (err) {
+        console.log(err)
+        this.imageLoading = false
+      }
     },
     selectImage (img) {
+      this.dialog = true
       this.selectedImage = img
     },
     getDataTimeUnix (time) {
@@ -175,12 +259,13 @@ export default {
       try {
         const currentLogedInUserID = await firebase.auth().currentUser.uid
         const technicianFullName = await db.collection('technician').doc(currentLogedInUserID).get()
-        const allHistory = await await db.collection('tickets').doc(this.$route.params.ticket_id).get()
+        const allHistory = await db.collection('tickets').doc(this.$route.params.ticket_id).get()
         const getCurrentServerTime = +new Date()
 
         if (allHistory.data().history) {
+          const allPastHistory = allHistory.data().history
           this.historyData = {
-            history: [...allHistory.data().history,
+            history: [...allPastHistory,
               {
                 created: {
                   at: getCurrentServerTime,
@@ -227,7 +312,6 @@ export default {
       } catch (err) {
         console.log(err)
       }
-
       this.historyComment = null
     }
   }
