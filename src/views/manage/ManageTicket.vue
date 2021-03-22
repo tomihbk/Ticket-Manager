@@ -100,11 +100,6 @@
                   </span>
                 </template>
                 <v-textarea v-if="ticket.state != 'Fermé'" v-model="historyComment" label="Commentaire..." solo>
-                  <template v-slot:append>
-                    <v-btn class="mx-0 font-weight-bold" color="blue" small dark depressed @click="comment">
-                      ajouter
-                    </v-btn>
-                  </template>
                 </v-textarea>
                 <span v-else>
                   <v-tooltip bottom>
@@ -114,10 +109,12 @@
                     <span>Pour pouvoir le modifier, il faut changer l'état du ticket</span>
                   </v-tooltip>
                 </span>
+                 <v-btn class="mx-0 font-weight-bold comment-button" color="blue" block dark depressed @click="comment">
+                      ajouter
+                    </v-btn>
               </v-timeline-item>
               <v-slide-x-transition v-if="events" group>
                 <v-timeline-item v-for="(event,i) in timeline" :key="i" class="mb-4" color="green" small style="display:flex;flex-wrap:wrap;">
-                  <!-- TODO Resolve problem with text overflowing on mobile and desktop -->
                   <v-row justify="space-between" style="align-items: center;">
                     <v-col>
                       <v-card elevation="1">
@@ -356,5 +353,18 @@ export default {
 .manage-ticket .gallery .mini-images:hover,
 .manage-ticket .client-name {
   cursor: pointer;
+}
+
+@media screen and (max-width: 800px) and (orientation: portrait) {
+  .v-timeline-item__divider{
+    display: none !important;
+  }
+  .v-timeline--dense .v-timeline-item__body {
+    max-width: 100% !important;
+}
+.v-timeline::before {
+     display:none !important;
+}
+
 }
 </style>

@@ -99,6 +99,6 @@ export default {
 }
 nav .sidebar{
     background-image: url("https://products.ls.graphics/mesh-gradients/images/08.-Violet-Blue.jpg");
-      background-position: top left;
+      background-position: center left;
 }
 </style>
