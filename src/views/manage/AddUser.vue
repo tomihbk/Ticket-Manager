@@ -71,7 +71,9 @@ export default {
         },
         mobile: null,
         fixe: null,
-
+        created: {
+          at: null
+        },
         email: null
       },
       loading: false,
@@ -89,6 +91,7 @@ export default {
       } else {
         this.feedback = null
 
+        this.clientData.created.at = await firebase.firestore.FieldValue.serverTimestamp()
         // This removes null data recursivly from javascript objects
         const dataWithoutNull = Object.fromEntries(
           Object.entries(this.clientData)
