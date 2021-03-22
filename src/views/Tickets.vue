@@ -77,7 +77,8 @@ export default {
     headers: [
       { text: 'Id', align: 'start', value: 'ticketID' },
       { text: 'Type', value: 'type' },
-      { text: 'Client', value: 'user' },
+      { text: 'Prénom', value: 'user.name' },
+      { text: 'Nom', value: 'user.surname' },
       { text: 'Titre', value: 'title' },
       { text: 'Date de création', value: 'created.at.seconds' },
       { text: 'État', value: 'state' },

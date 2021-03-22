@@ -1,7 +1,7 @@
 <template>
   <div class="users">
     <v-container class="my-5">
-      <v-data-table :headers="headers" :items="clients" :loading="loadingData" :search="search" sort-by="name" @dblclick:row="editFullUser" hide-default-footer :footer-props="footerProps" class="elevation-1">
+      <v-data-table :headers="headers" :items="clients" :loading="loadingData" :search="search" sort-by="name" @dblclick:row="editFullUser"  :footer-props="footerProps" class="elevation-1">
         <template v-slot:top>
           <v-toolbar flat>
             <v-toolbar-title class="font-weight-bold text-h5">Liste de clients</v-toolbar-title>
@@ -64,8 +64,8 @@ export default {
     dialogDelete: false,
     headers: [
       { text: 'Entreprise', align: 'start', value: 'company' },
-      { text: 'Nom', value: 'surname' },
       { text: 'Prénom', value: 'name' },
+      { text: 'Nom', value: 'surname' },
       { text: 'Téléphone / Fixe', value: 'mobile' },
       { text: 'Adresse', value: 'address.address1' },
       { text: 'Localité', value: 'address.locality' },
