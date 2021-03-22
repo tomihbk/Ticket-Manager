@@ -1,7 +1,7 @@
 <template>
   <div class="users">
     <v-container class="my-5">
-      <v-data-table :headers="headers" :items="clients" :loading="loadingData" :search="search" sort-by="name" hide-default-footer :footer-props="footerProps" class="elevation-1">
+      <v-data-table :headers="headers" :items="clients" :loading="loadingData" :search="search" sort-by="name" @dblclick:row="editFullUser" hide-default-footer :footer-props="footerProps" class="elevation-1">
         <template v-slot:top>
           <v-toolbar flat>
             <v-toolbar-title class="font-weight-bold text-h5">Liste de clients</v-toolbar-title>
@@ -105,11 +105,14 @@ export default {
         })
       this.loadingData = false
     },
-
+    editFullUser (mouseEvent, item) {
+      // get item id and send via router prop to manage page
+      this.$router.push({ name: 'manageuser', params: { client_id: item.item.id } })
+    },
     editItem (item) {
       console.log(item)
       // get item id and send via router prop to manage page
-      this.$router.push({ name: 'manageuser', params: { client_data: item, client_id: item.id } })
+      this.$router.push({ name: 'edituser', params: { client_data: item, client_id: item.id } })
     },
     deleteItem (item) {
       this.editedIndex = this.clients.indexOf(item)
