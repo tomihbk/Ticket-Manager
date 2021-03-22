@@ -45,7 +45,7 @@
             <p class="tm-5">Client(e) :</p>
             <v-simple-table class="mb-5">
               <tbody>
-                <tr>
+                <tr class="client-name" @click="openClientProfile">
                   <td>Nom :</td>
                   <td class="py-3">{{ticket.user.name}} {{ticket.user.surname}}</td>
                 </tr>
@@ -111,7 +111,7 @@
                     <template slot="activator" slot-scope="{ on }">
                       <p class="black--text" v-on="on">Ce ticket est archivé.</p>
                     </template>
-                    <span >Pour pouvoir le modifier, il faut changer l'état du ticket</span>
+                    <span>Pour pouvoir le modifier, il faut changer l'état du ticket</span>
                   </v-tooltip>
                 </span>
               </v-timeline-item>
@@ -210,6 +210,9 @@ export default {
     },
     modifyTicket () {
       this.$router.push({ name: 'editticket', params: { ticket_id: this.$route.params.ticket_id } })
+    },
+    openClientProfile () {
+      this.$router.push({ name: 'manageuser', params: { client_id: this.ticket.user.id } })
     },
     async deleteEvent (index) {
       try {
@@ -350,7 +353,8 @@ export default {
 .manage-ticket .gallery .mini-images {
   margin: 10px;
 }
-.manage-ticket .gallery .mini-images:hover {
+.manage-ticket .gallery .mini-images:hover,
+.manage-ticket .client-name {
   cursor: pointer;
 }
 </style>
