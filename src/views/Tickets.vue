@@ -107,12 +107,12 @@ export default {
       console.log('This is gonna cost ya')
       this.loadingData = true
 
-      db.collection('tickets').get()
+      db.collection('tickets').where('state', '!=', 'Fermé').get()
         .then(snapshot => {
           snapshot.forEach(document => {
             const tickets = document.data()
             tickets.id = document.id
-            tickets.created.at.seconds = moment.unix(document.data().created.at.seconds).format('DD-MM-YYYY HH:mm')
+            tickets.created.at.seconds = moment.unix(document.data().created.at.seconds).format('DD-MM-YYYY à HH:mm')
             this.tickets.push(tickets)
           })
         })
