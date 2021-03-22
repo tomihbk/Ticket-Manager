@@ -11,6 +11,7 @@ import PageNotFound from '@/views/PageNotFound.vue'
 import AddTicket from '@/views/manage/AddTicket.vue'
 import AddUser from '@/views/manage/AddUser.vue'
 import ManageUser from '@/views/manage/ManageUser.vue'
+import EditUser from '@/views/manage/EditUser.vue'
 import ManageTicket from '@/views/manage/ManageTicket.vue'
 import EditTicket from '@/views/manage/EditTicket.vue'
 import firebase from 'firebase'
@@ -93,6 +94,16 @@ const router = new VueRouter({
         requiresAuth: true // This component requires auth before acessing
       }
     },
+    {
+      path: '/edit-user/:client_id',
+      name: 'edituser',
+      component: EditUser,
+      props: true,
+      meta: {
+        requiresAuth: true // This component requires auth before acessing
+      }
+    },
+
     {
       path: '/manage-user/:client_id',
       name: 'manageuser',
