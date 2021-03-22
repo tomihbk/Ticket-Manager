@@ -16,10 +16,10 @@
               <span>AJOUTER<v-icon>mdi-plus</v-icon></span>
             </v-btn>
           </template>
-          <v-btn dark depressed rounded color="purple" class="mr-5" to="add-user">
+          <v-btn dark depressed rounded color="purple" class="mr-5" :to="{name:'adduser'}" replace>
             <v-icon>mdi-plus</v-icon>Client
           </v-btn>
-          <v-btn dark depressed rounded color="green" class="mr-5" to="add-ticket">
+          <v-btn dark depressed rounded color="green" class="mr-5" :to="{name:'addticket'}" replace>
             <v-icon>mdi-plus</v-icon> Ticket
           </v-btn>
         </v-speed-dial>
