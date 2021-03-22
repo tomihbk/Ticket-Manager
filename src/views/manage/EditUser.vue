@@ -112,7 +112,7 @@ export default {
         )// Data has been cleaned
         try {
           this.loading = true
-          await db.collection('clients').doc(this.firestoreID).set(dataWithoutNull)
+          await db.collection('clients').doc(this.firestoreID).update(dataWithoutNull)
           dataWithoutNull.objectID = this.firestoreID
           await algoindex.saveObjects([dataWithoutNull])
           this.loading = false
