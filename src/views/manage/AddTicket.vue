@@ -43,7 +43,7 @@
               <span class="mb-5"> Signature : </span>
               <v-btn rounded color="primary" class="blue lighten-3 black--text" depressed @click="signPadIsShown=!signPadIsShown">{{signPadIsShown ? 'Cacher' :'Afficher'}} la boîte de signature</v-btn>
               <p v-if="signPadIsShown">
-                <VueSignaturePad id="signPad" width="100%" height="300px" ref="signaturePad" class="mt-5" :class="{'signPadError' : signaturePadError}" />
+                <VueSignaturePad id="signPad" width="100%" height="300px" ref="signaturePad" class="mt-5" :class="{'signPadError' : signaturePadError}"></VueSignaturePad><v-btn @click="clearSignature">effacer</v-btn>
               </p>
             </v-col>
             <v-col cols="12" md="12">
@@ -112,8 +112,8 @@ export default {
       this.uploadedImages = files
       this.ticketData.images = []
     },
-    test () {
-      console.log('I am typing')
+    clearSignature () {
+      this.$refs.signaturePad.clearSignature()
     },
     async validate () {
       this.$refs.form.validate()
