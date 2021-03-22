@@ -26,7 +26,12 @@
       </v-fab-transition>
     </v-app-bar>
 
-    <v-navigation-drawer app v-model="drawer" class="teal">
+    <v-navigation-drawer app v-model="drawer" class="sidebar">
+      <div  v-if="technician" class="my-5 white--text font-weight-bold" style="text-align:center;border-bottom:2px solid white">
+      <p >Bienvenu</p>
+      <p class="text-h3"> {{technician.name}} {{technician.surname}} </p>
+       </div>
+
       <v-list rounded>
         <v-list-item v-for="link in links" :key="link.text" router :to="link.route">
           <v-list-item-action>
@@ -48,10 +53,12 @@
 
 <script>
 import firebase from 'firebase'
+import db from '@/firebase/api'
 export default {
   name: 'NavBar',
   data () {
     return {
+      technician: null,
       fab: false,
       drawer: true,
       links: [
@@ -61,6 +68,9 @@ export default {
         { icon: 'mdi-archive', text: 'Archive', route: '/archive' }
       ]
     }
+  },
+  created () {
+    this.initialize()
   },
   methods: {
     goHome () {
@@ -73,6 +83,11 @@ export default {
       } catch (err) {
         console.log(err)
       }
+    },
+    async initialize () {
+      const currentLogedInUserID = firebase.auth().currentUser.uid
+      const technicianFullName = await db.collection('technician').doc(currentLogedInUserID).get()
+      this.technician = technicianFullName.data()
     }
   }
 }
@@ -81,5 +96,9 @@ export default {
 <style>
 .toolbar-name:hover {
   cursor: pointer;
+}
+nav .sidebar{
+    background-image: url("https://products.ls.graphics/mesh-gradients/images/08.-Violet-Blue.jpg");
+      background-position: top left;
 }
 </style>
