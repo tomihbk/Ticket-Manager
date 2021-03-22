@@ -1,12 +1,12 @@
 <template>
   <div class="manage-ticket">
-    <v-row>
-      <v-col cols="12" md="5" v-if="ticket">
+    <v-row v-if="ticket">
+      <v-col cols="12" md="5">
         <v-card class="pa-5 ma-5">
           <v-card-text class="pb-0">
             <p class="display-1 text--primary font-weight-bold">
               Ticket N° {{ticket.ticketID}}
-              <v-btn depressed fab absolute small right direction="bottom" @click="modifyTicket">
+              <v-btn v-if="ticket.state != 'Fermé'" depressed fab absolute small right direction="bottom" @click="modifyTicket">
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
               <v-chip v-if="ticket.priority" class="ma-2" small color="red" text-color="white">
@@ -29,7 +29,7 @@
                 </tr>
                 <tr>
                   <td>Description :</td>
-                  <td class="py-3" style="white-space: pre;">{{ticket.description}}</td>
+                  <td class="py-3" style="white-space: pre-line;">{{ticket.description}}</td>
                 </tr>
                 <tr>
                   <td>Crée :</td>
@@ -53,9 +53,9 @@
             </v-simple-table>
             <template>
               <hr style="width:100%; border:1px dashed gray" class="mb-5" />
-              <v-file-input accept="image/*" :loading="imageLoading" clearable label="Importer une/des image(s)" @change="uploadPhotos" multiple dense></v-file-input>
+              <v-file-input v-if="ticket.state != 'Fermé'" accept="image/*" :loading="imageLoading" clearable label="Importer une/des image(s)" @change="uploadPhotos" multiple dense></v-file-input>
               <p class="tm-5">Image(s) : </p>
-              <v-row justify="center" v-if="gallery">
+              <v-row justify="center" v-if="gallery != []">
                 <template v-for="(img,i) in reversedGallery">
                   <div class="gallery" :key="i">
                     <v-img class="mini-images" :src="img.urlImage" width="150px" height="150px" @click="selectImage(img,i)" />
@@ -68,7 +68,7 @@
                     </v-card-text>
                     <v-card-actions>
                       <v-spacer></v-spacer>
-                      <v-btn color="red" text @click="deletePhoto">
+                      <v-btn v-if="ticket.state != 'Fermé'" color="red" text @click="deletePhoto">
                         Effacer
                       </v-btn>
                     </v-card-actions>
@@ -99,13 +99,21 @@
                     <v-icon color="white">mdi-message-text-outline</v-icon>
                   </span>
                 </template>
-                <v-textarea v-model="historyComment" label="Commentaire..." solo>
+                <v-textarea v-if="ticket.state != 'Fermé'" v-model="historyComment" label="Commentaire..." solo>
                   <template v-slot:append>
                     <v-btn class="mx-0 font-weight-bold" color="blue" small dark depressed @click="comment">
                       ajouter
                     </v-btn>
                   </template>
                 </v-textarea>
+                <span v-else>
+                  <v-tooltip bottom>
+                    <template slot="activator" slot-scope="{ on }">
+                      <p class="black--text" v-on="on">Ce ticket est archivé.</p>
+                    </template>
+                    <span >Pour pouvoir le modifier, il faut changer l'état du ticket</span>
+                  </v-tooltip>
+                </span>
               </v-timeline-item>
               <v-slide-x-transition v-if="events" group>
                 <v-timeline-item v-for="(event,i) in timeline" :key="i" class="mb-4" color="green" small style="display:flex;flex-wrap:wrap;">
@@ -115,7 +123,9 @@
                       <v-card elevation="1">
                         <v-card-text class="black--text" style="white-space: pre-line">{{event.message}}</v-card-text>
                         <v-card-actions style="justify-content: end;" class="text-caption grey--text text--lighten-1">
-                          {{getDataTime(event.created.at)}} | {{event.created.by.name}} {{event.created.by.surname}}
+                          {{getDataTimeMS(event.created.at)}} | {{event.created.by.name}} {{event.created.by.surname}}<v-btn v-if="ticket.state != 'Fermé'" icon @click="deleteEvent(i)" color="red lighten-2">
+                            <v-icon size="20">mdi-trash-can-outline</v-icon>
+                          </v-btn>
                         </v-card-actions>
                       </v-card>
                     </v-col>
@@ -146,7 +156,7 @@ export default {
     imageLoading: false,
     gallery: []
   }),
-  mounted () {
+  created () {
     this.initialize()
   },
   computed: {
@@ -197,14 +207,24 @@ export default {
           this.gallery.push({ pathToStorage: image.pathToStorage, urlImage: image.urlImage })
         }
       }
-      // console.log(this.events)
     },
     modifyTicket () {
       this.$router.push({ name: 'editticket', params: { ticket_id: this.$route.params.ticket_id } })
     },
+    async deleteEvent (index) {
+      try {
+        this.events.reverse().splice([index], 1)
+        this.events = this.events.slice().reverse()
+
+        await db.collection('tickets').doc(this.$route.params.ticket_id).update({
+          history: this.events
+        }, { merge: true })
+      } catch (err) {
+        console.log(err)
+      }
+    },
     async deletePhoto () {
       try {
-        // this.gallery.splice(this.selectImage.index, 1)
         this.gallery.splice(this.gallery.findIndex(v => v.urlImage === this.selectedImage.urlImage), 1)
         this.dialog = false
 
@@ -251,7 +271,7 @@ export default {
     getDataTimeUnix (time) {
       return moment.unix(time).format('DD-MM-YY à HH:mm:ss')
     },
-    getDataTime (time) {
+    getDataTimeMS (time) {
       return moment(time).format('DD-MM-YY à HH:mm:ss')
     },
     async comment () {
@@ -297,6 +317,10 @@ export default {
 
         await db.collection('tickets').doc(this.$route.params.ticket_id).update(this.historyData, { merge: true })
 
+        // If events is undefined, initiate an empty array
+        if (!this.events) {
+          this.events = []
+        }
         this.events.push(
           {
             created: {
@@ -325,5 +349,8 @@ export default {
 }
 .manage-ticket .gallery .mini-images {
   margin: 10px;
+}
+.manage-ticket .gallery .mini-images:hover {
+  cursor: pointer;
 }
 </style>
