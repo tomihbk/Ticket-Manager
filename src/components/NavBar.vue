@@ -60,7 +60,7 @@ export default {
     return {
       technician: null,
       fab: false,
-      drawer: true,
+      drawer: !this.isOnMobile(),
       links: [
         { icon: 'mdi-view-dashboard', text: 'Dashboard', route: '/' },
         { icon: 'mdi-account-group', text: 'Clients', route: '/users' },
@@ -75,6 +75,9 @@ export default {
   methods: {
     goHome () {
       this.$router.push({ name: 'dashboard' })
+    },
+    isOnMobile () {
+      return /Android|webOS|iPhone|iPad|Mac|Macintosh|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     },
     async logOut () {
       try {
