@@ -41,11 +41,11 @@ export default {
   name: 'signup',
   data () {
     return {
-      name: 'null',
-      surname: 'null',
-      email: 'thomasnegassi@gmail.com',
-      password: 'Thomas619',
-      confirmpassword: 'Thomas619',
+      name: null,
+      surname: null,
+      email: null,
+      password: null,
+      confirmpassword: null,
       feedback: null,
       rules: {
         required: value => !!value || 'Champ obligatoire',

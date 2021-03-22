@@ -16,6 +16,12 @@
         <v-form ref="form" class="ma-5 login-form">
           <v-text-field v-model="email" label="Email" :rules="[rules.required, rules.email]" filled></v-text-field>
           <v-text-field type="password" v-model="password" :rules="[rules.required]" label="Mot de Passe" filled></v-text-field>
+          <p @click="dialog = true" style="cursor:pointer">Mot de passe oublié ?</p>
+          <v-dialog v-model="dialog" v-if="dialog" width="40%">
+                  <v-card style="height:500px;display:flex;align-items:center;">
+                      <ForgotPassword/>
+                  </v-card>
+                </v-dialog>
           <v-btn large dark color="green" depressed @click="validate">Se Connecter</v-btn>
 
           <!-- Elément ne s'affiche pas si feedback est null -->
@@ -33,14 +39,17 @@
 </template>
 
 <script>
-// eslint-disable-next-line
-import db from '@/firebase/api'
 import firebase from 'firebase'
+import ForgotPassword from '@/components/ForgotPasswordForm'
 
 export default {
   name: 'login',
+  components: {
+    ForgotPassword
+  },
   data () {
     return {
+      dialog: false,
       email: null,
       password: null,
       feedback: null,
