@@ -7,7 +7,7 @@
           <v-row>
             <v-col cols="12" md="12">
               <ais-instant-search :search-client="searchClient" :index-name="algoliaIndexName">
-                <ais-search-box placeholder="Chercher le client" v-model="fieldname"/>
+                <ais-search-box placeholder="Chercher le client" v-model="fieldname" />
                 <ais-autocomplete>
                   <div slot-scope="{ currentRefinement, indices}">
                     <template v-if="currentRefinement">
@@ -25,6 +25,7 @@
                         </template>
                       </v-card>
                     </template>
+                    <ais-powered-by class="mt-2" style="justify-content: end;" />
                   </div>
                 </ais-autocomplete>
               </ais-instant-search>
@@ -43,7 +44,8 @@
               <span class="mb-5"> Signature : </span>
               <v-btn rounded color="primary" class="blue lighten-3 black--text" depressed @click="signPadIsShown=!signPadIsShown">{{signPadIsShown ? 'Cacher' :'Afficher'}} la boîte de signature</v-btn>
               <p v-if="signPadIsShown">
-                <VueSignaturePad id="signPad" width="100%" height="300px" ref="signaturePad" class="mt-5" :class="{'signPadError' : signaturePadError}"></VueSignaturePad><v-btn @click="clearSignature">effacer</v-btn>
+                <VueSignaturePad id="signPad" width="100%" height="300px" ref="signaturePad" class="mt-5" :class="{'signPadError' : signaturePadError}"></VueSignaturePad>
+                <v-btn @click="clearSignature">effacer</v-btn>
               </p>
             </v-col>
             <v-col cols="12" md="12">
