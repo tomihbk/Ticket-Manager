@@ -40,6 +40,9 @@
             <v-col cols="12" sm="12">
               <v-select v-model="ticketData.type" :items="tickettype" :rules="[rules.required]" label="Catégorie" required></v-select>
             </v-col>
+              <v-col cols="12" sm="12">
+              <v-select v-model="ticketData.state" :items="ticketState" :rules="[rules.required]" label="État" required></v-select>
+            </v-col>
             <v-col cols="12" md="12">
               <v-textarea type="text" v-model="ticketData.description" label="Description de problème" :rules="[rules.required]" dense></v-textarea>
             </v-col>
@@ -63,6 +66,7 @@ export default {
   data () {
     return {
       tickettype: ['Graphisme', 'Informatique', 'Web', 'Imprimerie'],
+      ticketState: ['Nouveau', 'En cours', 'En attente de commande', 'En attente de client', 'A facturé', 'Fermé'],
       fieldname: '',
       isSelected: false,
       algoliaIndexName: process.env.VUE_APP_ALGOLIA_INDEX_CLIENTS,
