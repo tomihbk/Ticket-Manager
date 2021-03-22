@@ -12,10 +12,10 @@
               </v-col>
 
               <v-col cols="12" md="6">
-                <v-text-field type="text" v-model="clientData.name" label="Nom" :rules="[rules.required]" dense></v-text-field>
+                <v-text-field type="text" v-model="clientData.name" label="Prénom" :rules="[rules.required]" dense></v-text-field>
               </v-col>
               <v-col cols="12" md="6">
-                <v-text-field type="text" v-model="clientData.surname" label="Prénom" :rules="[rules.required]" dense></v-text-field>
+                <v-text-field type="text" v-model="clientData.surname" label="Nom" :rules="[rules.required]" dense></v-text-field>
               </v-col>
               <v-col cols="12" md="12">
                 <v-text-field type="text" v-model="clientData.address.address1" label="Adresse 1" dense></v-text-field>
@@ -113,6 +113,7 @@ export default {
         try {
           this.loading = true
           await db.collection('clients').doc(this.firestoreID).update(dataWithoutNull)
+          await this.updateTicketUsername()
           dataWithoutNull.objectID = this.firestoreID
           await algoindex.saveObjects([dataWithoutNull])
           this.loading = false
@@ -122,6 +123,23 @@ export default {
           console.log(err)
         }
       }
+    },
+    async updateTicketUsername () {
+      const batch = db.batch()
+
+      // Initialize document
+      await db.collection('tickets').where('user.id', '==', this.$route.params.client_id).get().then(snap => {
+        snap.forEach(async doc => {
+          try {
+            console.log(doc.id)
+            const ref = await db.collection('tickets').doc(doc.id)
+            batch.update(ref, { 'user.name': this.clientData.name, 'user.surname': this.clientData.surname })
+          } catch (err) {
+            console.log(err)
+          }
+        })
+      })
+      batch.commit()
     }
   }
 }

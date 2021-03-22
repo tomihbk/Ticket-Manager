@@ -11,10 +11,10 @@
             </v-col>
 
             <v-col cols="12" md="6">
-              <v-text-field type="text" v-model="clientData.name" label="Nom" :rules="[rules.required]" dense></v-text-field>
+              <v-text-field type="text" v-model="clientData.name" label="Prénom" :rules="[rules.required]" dense></v-text-field>
             </v-col>
             <v-col cols="12" md="6">
-              <v-text-field type="text" v-model="clientData.surname" label="Prénom" :rules="[rules.required]" dense></v-text-field>
+              <v-text-field type="text" v-model="clientData.surname" label="Nom" :rules="[rules.required]" dense></v-text-field>
             </v-col>
             <v-col cols="12" md="12">
               <v-text-field type="text" v-model="clientData.address.address1" label="Adresse 1" dense></v-text-field>
