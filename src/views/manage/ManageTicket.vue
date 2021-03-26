@@ -92,6 +92,17 @@
             <p class="display-1 text--primary font-weight-bold">
               Historique
             </p>
+
+            <v-row>
+              <v-col cols="12" md="2">
+                <p class="text--primary mb-0 mt-3" >
+                  Montré :
+                </p>
+              </v-col>
+              <v-col cols="12" md="10">
+                <v-select v-model="defaultCommentType" :items="commentTypes" label="selectionner" single-line dense chips class="state-select-panel" @change="showCommentChanged"></v-select>
+              </v-col>
+            </v-row>
             <v-timeline dense clipped>
               <v-timeline-item fill-dot class="white--text mb-12" color="blue" large>
                 <template v-slot:icon>
@@ -109,9 +120,18 @@
                     <span>Pour pouvoir le modifier, il faut changer l'état du ticket</span>
                   </v-tooltip>
                 </span>
-                 <v-btn class="mx-0 font-weight-bold comment-button" color="blue" block dark depressed @click="comment">
-                      ajouter
+                <v-row v-if="ticket.state != 'Fermé'">
+                  <v-col cols="12" md="6">
+                    <v-btn class="mx-0 font-weight-bold comment-button" color="green" block dark depressed @click="comment('public')">
+                      Ajouter(publique)
                     </v-btn>
+                  </v-col>
+                  <v-col cols="12" md="6">
+                    <v-btn class="mx-0 font-weight-bold comment-button" color="blue" block dark depressed @click="comment('private')">
+                      Ajouter(privé)
+                    </v-btn>
+                  </v-col>
+                </v-row>
               </v-timeline-item>
               <v-slide-x-transition v-if="events" group>
                 <v-timeline-item v-for="(event,i) in timeline" :key="i" class="mb-4" color="green" small style="display:flex;flex-wrap:wrap;">
@@ -120,7 +140,7 @@
                       <v-card elevation="1">
                         <v-card-text class="black--text" style="white-space: pre-line">{{event.message}}</v-card-text>
                         <v-card-actions style="justify-content: end;" class="text-caption grey--text text--lighten-1">
-                          {{getDataTimeMS(event.created.at)}} | {{event.created.by.name}} {{event.created.by.surname}}<v-btn v-if="ticket.state != 'Fermé'" icon @click="deleteEvent(i)" color="red lighten-2">
+                          <v-chip v-if="event.private" color="blue" class="mr-3 lighten-1" dark small>Privé</v-chip>{{getDataTimeMS(event.created.at)}} | {{event.created.by.name}} {{event.created.by.surname}}<v-btn v-if="ticket.state != 'Fermé'" icon @click="deleteEvent(i)" color="red lighten-2">
                             <v-icon size="20">mdi-trash-can-outline</v-icon>
                           </v-btn>
                         </v-card-actions>
@@ -136,7 +156,6 @@
     </v-row>
   </div>
 </template>
-
 <script>
 
 import moment from 'moment'
@@ -151,14 +170,18 @@ export default {
     historyComment: null,
     historyData: null,
     imageLoading: false,
-    gallery: []
+    gallery: [],
+    defaultCommentType: 'Tout',
+    commentTypes: ['Tout', 'Privé', 'Publique'],
+    selectedCommentType: null,
+    filteredEvents: []
   }),
   created () {
     this.initialize()
   },
   computed: {
     timeline () {
-      return this.events.slice().reverse()
+      return this.filteredEvents
     },
     reversedGallery () {
       return this.gallery.slice().reverse()
@@ -192,10 +215,13 @@ export default {
                   techID: this.ticket.history[i].created.by.techID
                 }
               },
-              message: this.ticket.history[i].message
+              message: this.ticket.history[i].message,
+              private: this.ticket.history[i].private
             }
           )
         }
+
+        this.filteredEvents = this.events
       }
       console.log(this.events)
       if (this.ticket.images || !this.ticket.images === '') {
@@ -274,7 +300,7 @@ export default {
     getDataTimeMS (time) {
       return moment(time).format('DD-MM-YY à HH:mm:ss')
     },
-    async comment () {
+    async comment (typeOfComment) {
       if (!this.historyComment) return
       try {
         const currentLogedInUserID = await firebase.auth().currentUser.uid
@@ -294,7 +320,8 @@ export default {
                     ...technicianFullName.data()
                   }
                 },
-                message: this.historyComment
+                message: this.historyComment,
+                private: typeOfComment === 'private'
               }
             ]
           }
@@ -309,7 +336,8 @@ export default {
                     ...technicianFullName.data()
                   }
                 },
-                message: this.historyComment
+                message: this.historyComment,
+                private: typeOfComment === 'private'
               }
             ]
           }
@@ -321,22 +349,39 @@ export default {
         if (!this.events) {
           this.events = []
         }
+        const newEvent = {
+          created: {
+            at: getCurrentServerTime,
+            by: {
+              techID: currentLogedInUserID,
+              ...technicianFullName.data()
+            }
+          },
+          message: this.historyComment,
+          private: typeOfComment === 'private'
+        }
         this.events.push(
-          {
-            created: {
-              at: getCurrentServerTime,
-              by: {
-                techID: currentLogedInUserID,
-                ...technicianFullName.data()
-              }
-            },
-            message: this.historyComment
-          }
+          newEvent
         )
+        this.filteredEvents.push(newEvent)
+        this.filteredEvents = this.filteredEvents.slice().reverse()
       } catch (err) {
         console.log(err)
       }
       this.historyComment = null
+    },
+    showCommentChanged (showComment) {
+      switch (showComment) {
+        case 'Privé':
+          this.filteredEvents = this.events.filter(event => event.private === true).slice().reverse()
+          break
+        case 'Publique':
+          this.filteredEvents = this.events.filter(event => event.private !== true).slice().reverse()
+          break
+        case 'Tout':
+          this.filteredEvents = this.events.slice().reverse()
+          break
+      }
     }
   }
 }
@@ -356,15 +401,14 @@ export default {
 }
 
 @media screen and (max-width: 800px) and (orientation: portrait) {
-  .v-timeline-item__divider{
+  .v-timeline-item__divider {
     display: none !important;
   }
   .v-timeline--dense .v-timeline-item__body {
     max-width: 100% !important;
-}
-.v-timeline::before {
-     display:none !important;
-}
-
+  }
+  .v-timeline::before {
+    display: none !important;
+  }
 }
 </style>
