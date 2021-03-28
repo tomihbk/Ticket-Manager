@@ -3,7 +3,7 @@
     <span class="text-h2 font-weight-bold ma-5">Dashboard</span>
 
     <v-container class="my-5 main-container">
-      <v-card class="mx-auto ticket-open" max-width="200" min-width="200" v-for="(btn,index) in btnData" :key="index" :class="btn.color" :to="btn.route">
+      <v-card class="ticket-open" max-width="200" min-width="200" v-for="(btn,index) in btnData" :key="index" :class="btn.color" :to="btn.route">
         <v-card-text class="mx-auto md-5">
           <div class="font-weight-bold">Total</div>
           <p class="text-h3 mt-3">
@@ -50,8 +50,13 @@ export default {
 </script>
 
 <style>
+.main-container{
+    justify-content: center;
+}
 .ticket-open {
+  margin:1.2em;
   margin-top: 2em;
+
 }
 .ticket-open div,
 .ticket-open p,
