@@ -1,12 +1,12 @@
 <template>
   <div class="manage-ticket">
-    <v-row v-if="ticket">
-      <v-col cols="12" md="5">
+    <v-row v-if="ticket" id="section-to-print" class="section-to-print-ticket">
+      <v-col cols="12" md="5" id="ticket-info">
         <v-card class="pa-5 ma-5">
           <v-card-text class="pb-0">
             <p class="display-1 text--primary font-weight-bold">
               Ticket N° {{ticket.ticketID}}
-              <v-btn v-if="ticket.state != 'Fermé'" depressed fab absolute small right direction="bottom" @click="modifyTicket">
+              <v-btn v-if="ticket.state != 'Fermé'" id="section-not-to-print" depressed fab absolute small right direction="bottom" @click="modifyTicket">
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
               <v-chip v-if="ticket.priority" class="ma-2" small color="red" text-color="white">
@@ -53,7 +53,9 @@
             </v-simple-table>
             <template>
               <hr style="width:100%; border:1px dashed gray" class="mb-5" />
-              <v-file-input v-if="ticket.state != 'Fermé'" accept="image/*" :loading="imageLoading" clearable label="Importer une/des image(s)" @change="uploadPhotos" multiple dense></v-file-input>
+              <div id="section-not-to-print">
+              <v-file-input v-if="ticket.state != 'Fermé'"  accept="image/*" :loading="imageLoading" clearable label="Importer une/des image(s)" @change="uploadPhotos" multiple dense></v-file-input>
+              </div>
               <p class="tm-5">Image(s) : </p>
               <v-row justify="center" v-if="gallery != []">
                 <template v-for="(img,i) in reversedGallery">
@@ -86,17 +88,21 @@
           </v-card-text>
         </v-card>
       </v-col>
-      <v-col cols="12" md="7">
+      <p class="pagebreak" id="section-to-print">&nbsp;</p>
+      <v-col cols="12" md="7" id="history-info">
         <v-card class="pa-5 ma-5">
+           <v-btn v-if="ticket.state != 'Fermé'" id="section-not-to-print" depressed fab absolute small right direction="bottom" @click="hideNav">
+                <v-icon>mdi-printer</v-icon>
+              </v-btn>
           <v-card-text class="pb-0">
             <p class="display-1 text--primary font-weight-bold">
               Historique
             </p>
 
-            <v-row>
+            <v-row id="section-not-to-print">
               <v-col cols="12" md="2">
                 <p class="text--primary mb-0 mt-3" >
-                  Montré :
+                  Afficher :
                 </p>
               </v-col>
               <v-col cols="12" md="10">
@@ -104,7 +110,7 @@
               </v-col>
             </v-row>
             <v-timeline dense clipped>
-              <v-timeline-item fill-dot class="white--text mb-12" color="blue" large>
+              <v-timeline-item fill-dot class="white--text mb-12" color="blue" large id="section-not-to-print">
                 <template v-slot:icon>
                   <span>
                     <v-icon color="white">mdi-message-text-outline</v-icon>
@@ -140,9 +146,10 @@
                       <v-card elevation="1">
                         <v-card-text class="black--text" style="white-space: pre-line">{{event.message}}</v-card-text>
                         <v-card-actions style="justify-content: end;" class="text-caption grey--text text--lighten-1">
-                          <v-chip v-if="event.private" color="blue" class="mr-3 lighten-1" dark small>Privé</v-chip>{{getDataTimeMS(event.created.at)}} | {{event.created.by.name}} {{event.created.by.surname}}<v-btn v-if="ticket.state != 'Fermé'" icon @click="deleteEvent(i)" color="red lighten-2">
+                          <v-chip v-if="event.private" color="blue" class="mr-3 lighten-1" dark small>Privé</v-chip>{{getDataTimeMS(event.created.at)}} | {{event.created.by.name}} {{event.created.by.surname}} <div id="section-not-to-print"> <v-btn v-if="ticket.state != 'Fermé'" icon @click="deleteEvent(i)" color="red lighten-2">
                             <v-icon size="20">mdi-trash-can-outline</v-icon>
                           </v-btn>
+                          </div>
                         </v-card-actions>
                       </v-card>
                     </v-col>
@@ -382,6 +389,10 @@ export default {
           this.filteredEvents = this.events.slice().reverse()
           break
       }
+    },
+    hideNav () {
+      this.$root.$emit('HideSideBar')
+      window.print()
     }
   }
 }
@@ -398,6 +409,40 @@ export default {
 .manage-ticket .gallery .mini-images:hover,
 .manage-ticket .client-name {
   cursor: pointer;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #section-to-print, #section-to-print * {
+    visibility: visible;
+  }
+  #section-to-print {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  #section-not-to-print, #section-not-to-print *{
+    visibility: hidden;
+    display: none;
+  }
+
+  #ticket-info{
+    width:100% !important
+  }
+   #history-info{
+    width:100% !important
+  }
+  .section-to-print-ticket{
+    margin-top: -90px !important;
+    display: grid !important;
+    grid-template-columns: 100vw !important;
+  }
+.pagebreak {
+        clear: both !important;
+        page-break-after: always !important;
+    }
 }
 
 @media screen and (max-width: 800px) and (orientation: portrait) {
