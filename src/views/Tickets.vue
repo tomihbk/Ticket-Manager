@@ -29,7 +29,7 @@
           </v-toolbar>
         </template>
         <template v-slot:[`item.state`]="{ item }" width="100px">
-          <v-select v-model="item.state" :items="ticketState" label="Select" return-object single-line chips class="state-select-panel" @change="stateChanged(item.id,item.state)"></v-select>
+          <v-select v-model="item.state" :items="ticketState" label="Selectionner" return-object single-line chips class="state-select-panel" @change="stateChanged(item.id,item.state)"></v-select>
         </template>
 
         <template v-slot:[`item.type`]="{ item }">
