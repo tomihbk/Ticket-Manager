@@ -140,7 +140,7 @@
                 </v-row>
               </v-timeline-item>
               <v-slide-x-transition v-if="events" group>
-                <v-timeline-item v-for="(event,i) in timeline" :key="i" class="mb-4" color="green" small style="display:flex;flex-wrap:wrap;">
+                <v-timeline-item v-for="(event,i) in timeline.slice().reverse()" :key="i" class="mb-4" color="green" small style="display:flex;flex-wrap:wrap;">
                   <v-row justify="space-between" style="align-items: center;">
                     <v-col>
                       <v-card elevation="1">
@@ -247,7 +247,7 @@ export default {
     async deleteEvent (index) {
       try {
         this.events.reverse().splice([index], 1)
-        this.events = this.events.slice().reverse()
+        this.filteredEvents = this.events.reverse()
 
         await db.collection('tickets').doc(this.$route.params.ticket_id).update({
           history: this.events
@@ -370,8 +370,6 @@ export default {
         this.events.push(
           newEvent
         )
-        this.filteredEvents.push(newEvent)
-        this.filteredEvents = this.filteredEvents.slice().reverse()
       } catch (err) {
         console.log(err)
       }
@@ -380,13 +378,13 @@ export default {
     showCommentChanged (showComment) {
       switch (showComment) {
         case 'Privé':
-          this.filteredEvents = this.events.filter(event => event.private === true).slice().reverse()
+          this.filteredEvents = this.events.filter(event => event.private === true)
           break
         case 'Publique':
-          this.filteredEvents = this.events.filter(event => event.private !== true).slice().reverse()
+          this.filteredEvents = this.events.filter(event => event.private !== true)
           break
         case 'Tout':
-          this.filteredEvents = this.events.slice().reverse()
+          this.filteredEvents = this.events
           break
       }
     },
