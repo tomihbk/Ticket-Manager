@@ -140,7 +140,7 @@
                 </v-row>
               </v-timeline-item>
               <v-slide-x-transition v-if="events" group>
-                <v-timeline-item v-for="(event,i) in timeline.slice().reverse()" :key="i" class="mb-4" color="green" small style="display:flex;flex-wrap:wrap;">
+                <v-timeline-item v-for="(event,i) in timeline" :key="i" class="mb-4" color="green" small style="display:flex;flex-wrap:wrap;">
                   <v-row justify="space-between" style="align-items: center;">
                     <v-col>
                       <v-card elevation="1">
@@ -188,7 +188,7 @@ export default {
   },
   computed: {
     timeline () {
-      return this.filteredEvents
+      return this.filteredEvents.slice().reverse()
     },
     reversedGallery () {
       return this.gallery.slice().reverse()
@@ -301,12 +301,16 @@ export default {
       this.dialog = true
       this.selectedImage = img
     },
+    // This function returns a converted unixtime(epoch) to date and time
     getDataTimeUnix (time) {
       return moment.unix(time).format('DD-MM-YY à HH:mm:ss')
     },
+    // This function returns a converted milliseconds to date and time
     getDataTimeMS (time) {
       return moment(time).format('DD-MM-YY à HH:mm:ss')
     },
+    // This function is called when submitting a comment
+    // It takes 1 argument, it's whether privé or publique
     async comment (typeOfComment) {
       if (!this.historyComment) return
       try {
@@ -375,6 +379,7 @@ export default {
       }
       this.historyComment = null
     },
+    // This function handles when the user filters comments
     showCommentChanged (showComment) {
       switch (showComment) {
         case 'Privé':
