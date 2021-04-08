@@ -177,6 +177,7 @@ export default {
     historyComment: null,
     historyData: null,
     imageLoading: false,
+    firstEventData: false,
     gallery: [],
     defaultCommentType: 'Tout',
     commentTypes: ['Tout', 'Privé', 'Publique'],
@@ -188,9 +189,11 @@ export default {
   },
   computed: {
     timeline () {
+      // History messages are filtered from newest to old
       return this.filteredEvents.slice().reverse()
     },
     reversedGallery () {
+      // Images are filtered from newest to old
       return this.gallery.slice().reverse()
     }
   },
@@ -314,8 +317,8 @@ export default {
     async comment (typeOfComment) {
       if (!this.historyComment) return
       try {
-        const currentLogedInUserID = await firebase.auth().currentUser.uid
-        const technicianFullName = await db.collection('technician').doc(currentLogedInUserID).get()
+        const currentLoggedInUserID = await firebase.auth().currentUser.uid
+        const technicianFullName = await db.collection('technician').doc(currentLoggedInUserID).get()
         const allHistory = await db.collection('tickets').doc(this.$route.params.ticket_id).get()
         const getCurrentServerTime = +new Date()
 
@@ -327,7 +330,7 @@ export default {
                 created: {
                   at: getCurrentServerTime,
                   by: {
-                    techID: currentLogedInUserID,
+                    techID: currentLoggedInUserID,
                     ...technicianFullName.data()
                   }
                 },
@@ -343,7 +346,7 @@ export default {
                 created: {
                   at: getCurrentServerTime,
                   by: {
-                    techID: currentLogedInUserID,
+                    techID: currentLoggedInUserID,
                     ...technicianFullName.data()
                   }
                 },
@@ -359,12 +362,13 @@ export default {
         // If events is undefined, initiate an empty array
         if (!this.events) {
           this.events = []
+          this.firstEventData = true
         }
         const newEvent = {
           created: {
             at: getCurrentServerTime,
             by: {
-              techID: currentLogedInUserID,
+              techID: currentLoggedInUserID,
               ...technicianFullName.data()
             }
           },
@@ -374,6 +378,9 @@ export default {
         this.events.push(
           newEvent
         )
+        if (this.firstEventData) {
+          this.filteredEvents = this.events
+        }
       } catch (err) {
         console.log(err)
       }
