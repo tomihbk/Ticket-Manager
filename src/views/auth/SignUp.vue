@@ -54,8 +54,9 @@ export default {
           return pattern.test(value) || 'E-mail Invalide'
         },
         strongPassword: value => {
-          const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/
-          return pattern.test(value) || 'Minimum 6 caractères, au moins une lettre majuscule, une lettre minuscule et un chiffre'
+          const pattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/
+          console.log(pattern.test(value))
+          return pattern.test(value) || 'Minimum 5 caractères, au moins une lettre majuscule, une lettre minuscule et un chiffre'
         },
         identic: () => {
           return this.password === this.confirmpassword || 'Les mots de passes ne sont pas identiques'
