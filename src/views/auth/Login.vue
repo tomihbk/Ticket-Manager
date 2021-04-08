@@ -15,7 +15,7 @@
         <h1>Login</h1>
         <v-form ref="form" class="ma-5 login-form">
           <v-text-field v-model="email" label="Email" :rules="[rules.required, rules.email]" filled></v-text-field>
-          <v-text-field type="password" v-model="password" :rules="[rules.required]" label="Mot de Passe" filled></v-text-field>
+          <v-text-field type="password" v-model="password" :rules="[rules.required]" label="Mot de Passe" filled @keyup.enter="validate"></v-text-field>
           <p @click="dialog = true" style="cursor:pointer">Mot de passe oublié ?</p>
           <v-dialog v-model="dialog" v-if="dialog" width="40%">
                   <v-card style="height:500px;display:flex;align-items:center;">
