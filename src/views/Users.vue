@@ -92,7 +92,6 @@ export default {
 
   methods: {
     initialize () {
-      console.log('This is gonna cost ya')
       this.loadingData = true
 
       db.collection('clients').get()
@@ -105,14 +104,13 @@ export default {
         })
       this.loadingData = false
     },
-    editFullUser (mouseEvent, item) {
+    editFullUser (selectedUser) {
       // get item id and send via router prop to manage page
-      this.$router.push({ name: 'manageuser', params: { client_id: item.item.id } })
+      this.$router.push({ name: 'manageuser', params: { client_id: selectedUser.item.id } })
     },
-    editItem (item) {
-      console.log(item)
+    editItem (selectedUser) {
       // get item id and send via router prop to manage page
-      this.$router.push({ name: 'edituser', params: { client_data: item, client_id: item.id } })
+      this.$router.push({ name: 'edituser', params: { client_data: selectedUser, client_id: selectedUser.id } })
     },
     deleteItem (item) {
       this.editedIndex = this.clients.indexOf(item)
