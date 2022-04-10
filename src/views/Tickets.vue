@@ -29,7 +29,7 @@
           </v-toolbar>
         </template>
         <template v-slot:[`item.state`]="{ item }" width="100px">
-          <v-select v-model="item.state" :items="ticketState" label="Selectionner" return-object single-line chips class="state-select-panel" @change="stateChanged(item.id,item.state)"></v-select>
+          <v-select v-model="item.state" :items="ticketState" label="Selectionner" return-object single-line chips class="state-select-panel" @change="stateChanged(item.id,item.state, item.oldstate)"></v-select>
         </template>
 
         <template v-slot:[`item.type`]="{ item }">
@@ -137,10 +137,18 @@ export default {
     modifyTicket (item) {
       this.$router.push({ name: 'editticket', params: { ticket_id: item.id } })
     },
-    async stateChanged (ticketFBId, state) {
+    async stateChanged (ticketFBId, state, oldState) {
+      if (oldState !== 'Fermé' && state === 'Fermé') {
+        const statsRef = db.collection('stats').doc('stats')
+        await statsRef.update({
+          'total-opened-tickets': firebase.firestore.FieldValue.increment(-1)
+        })
+      }
+
       try {
         await db.collection('tickets').doc(ticketFBId).update({
-          state: state
+          state: state,
+          oldstate: state
         })
       } catch (err) {
         console.log(err)

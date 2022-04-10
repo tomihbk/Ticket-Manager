@@ -24,7 +24,7 @@
           </v-toolbar>
         </template>
         <template v-slot:[`item.state`]="{ item }" width="100px">
-          <v-select v-model="item.state" :items="ticketState" label="Select" return-object single-line chips class="state-select-panel" @change="stateChanged(item.id,item.state)"></v-select>
+          <v-select v-model="item.state" :items="ticketState" label="Select" return-object single-line chips class="state-select-panel" @change="stateChanged(item.id,item.state,item.oldstate)"></v-select>
         </template>
 
         <template v-slot:[`item.type`]="{ item }">
@@ -33,16 +33,7 @@
           </v-chip>
         </template>
 
-        <template v-slot:[`item.priority`]="{ item }">
-          <v-checkbox v-model="item.priority" color="red" on-icon="mdi-star" off-icon="mdi-star-outline" @change="setPriority(item.id,item.priority)"></v-checkbox>
-        </template>
-        <template v-slot:[`item.user`]="{ item }">
-          {{item.user.name}} {{item.user.surname}}
-        </template>
         <template v-slot:[`item.actions`]="{ item }">
-          <v-icon small class="mr-2" @click="modifyTicket(item)">
-            mdi-pencil
-          </v-icon>
           <v-icon small @click="deleteTicket(item)">
             mdi-delete
           </v-icon>
@@ -72,11 +63,11 @@ export default {
     headers: [
       { text: 'Id', align: 'start', value: 'ticketID' },
       { text: 'Type', value: 'type' },
-      { text: 'Client', value: 'user' },
+      { text: 'Prénom', value: 'user.name' },
+      { text: 'Nom', value: 'user.surname' },
       { text: 'Titre', value: 'title' },
       { text: 'Date de création', value: 'created.at.seconds' },
       { text: 'État', value: 'state' },
-      { text: 'Priorité', value: 'priority' },
       { text: 'Actions', value: 'actions', sortable: false }
     ],
     tickets: [],
@@ -128,13 +119,18 @@ export default {
           return 'white'
       }
     },
-    modifyTicket (item) {
-      this.$router.push({ name: 'editticket', params: { ticket_id: item.id } })
-    },
-    async stateChanged (ticketFBId, state) {
+    async stateChanged (ticketFBId, state, oldState) {
+      if (oldState === 'Fermé' && state !== 'Fermé') {
+        const statsRef = db.collection('stats').doc('stats')
+        await statsRef.update({
+          'total-opened-tickets': firebase.firestore.FieldValue.increment(1)
+        })
+      }
+
       try {
         await db.collection('tickets').doc(ticketFBId).update({
-          state: state
+          state: state,
+          oldstate: state
         })
       } catch (err) {
         console.log(err)

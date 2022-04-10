@@ -88,7 +88,7 @@
           </v-card-text>
         </v-card>
       </v-col>
-      <p class="pagebreak" id="section-to-print">&nbsp;</p>
+      <!-- <p class="pagebreak" id="section-to-print">&nbsp;</p> -->
       <v-col cols="12" md="7" id="history-info">
         <v-card class="pa-5 ma-5">
            <v-btn v-if="ticket.state != 'Fermé'" id="section-not-to-print" depressed fab absolute small right direction="bottom" @click="hideNav">
