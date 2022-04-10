@@ -5,8 +5,9 @@
         <v-card class="pa-5 ma-5">
           <v-card-text class="pb-0">
             <p class="display-1 text--primary font-weight-bold">
-              Ticket N° {{ticket.ticketID}}
-              <v-btn v-if="ticket.state != 'Fermé'" id="section-not-to-print" depressed fab absolute small right direction="bottom" @click="modifyTicket">
+              Ticket N° {{ ticket.ticketID }}
+              <v-btn v-if="ticket.state != 'Fermé'" id="section-not-to-print" depressed fab absolute small right
+                direction="bottom" @click="modifyTicket">
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
               <v-chip v-if="ticket.priority" class="ma-2" small color="red" text-color="white">
@@ -21,23 +22,24 @@
               <tbody>
                 <tr>
                   <td>Titre :</td>
-                  <td class="py-3">{{ticket.title}}</td>
+                  <td class="py-3">{{ ticket.title }}</td>
                 </tr>
                 <tr>
                   <td>Catégorie :</td>
-                  <td class="py-3">{{ticket.type}}</td>
+                  <td class="py-3">{{ ticket.type }}</td>
                 </tr>
                 <tr>
                   <td>Description :</td>
-                  <td class="py-3" style="white-space: pre-line;">{{ticket.description}}</td>
+                  <td class="py-3" style="white-space: pre-line;">{{ ticket.description }}</td>
                 </tr>
                 <tr>
                   <td>Crée :</td>
-                  <td class="py-3">{{getDataTimeUnix(ticket.created.at.seconds)}} <br /> Par {{ticket.created.by.name}} {{ticket.created.by.surname}}</td>
+                  <td class="py-3">{{ getDataTimeUnix(ticket.created.at.seconds) }} <br /> Par {{ ticket.created.by.name }}
+                    {{ ticket.created.by.surname }}</td>
                 </tr>
                 <tr>
                   <td>État :</td>
-                  <td class="py-3">{{ticket.state}}</td>
+                  <td class="py-3">{{ ticket.state }}</td>
                 </tr>
               </tbody>
             </v-simple-table>
@@ -47,20 +49,22 @@
               <tbody>
                 <tr class="client-name" @click="openClientProfile">
                   <td>Nom :</td>
-                  <td class="py-3">{{ticket.user.name}} {{ticket.user.surname}}</td>
+                  <td class="py-3">{{ ticket.user.name }} {{ ticket.user.surname }}</td>
                 </tr>
               </tbody>
             </v-simple-table>
             <template>
               <hr style="width:100%; border:1px dashed gray" class="mb-5" />
               <div id="section-not-to-print">
-              <v-file-input v-if="ticket.state != 'Fermé'"  accept="image/*" :loading="imageLoading" clearable label="Importer une/des image(s)" @change="uploadPhotos" multiple dense></v-file-input>
+                <v-file-input v-if="ticket.state != 'Fermé'" accept="image/*" :loading="imageLoading" clearable
+                  label="Importer une/des image(s)" @change="uploadPhotos" multiple dense></v-file-input>
               </div>
               <p class="tm-5">Image(s) : </p>
               <v-row justify="center" v-if="gallery != []">
-                <template v-for="(img,i) in reversedGallery">
+                <template v-for="(img, i) in reversedGallery">
                   <div class="gallery" :key="i">
-                    <v-img class="mini-images" :src="img.urlImage" width="150px" height="150px" @click="selectImage(img,i)" />
+                    <v-img class="mini-images" :src="img.urlImage" width="150px" height="150px"
+                      @click="selectImage(img, i)" />
                   </div>
                 </template>
                 <v-dialog v-model="dialog" v-if="dialog" width="80%">
@@ -91,9 +95,10 @@
       <!-- <p class="pagebreak" id="section-to-print">&nbsp;</p> -->
       <v-col cols="12" md="7" id="history-info">
         <v-card class="pa-5 ma-5">
-           <v-btn v-if="ticket.state != 'Fermé'" id="section-not-to-print" depressed fab absolute small right direction="bottom" @click="hideNav">
-                <v-icon>mdi-printer</v-icon>
-              </v-btn>
+          <v-btn v-if="ticket.state != 'Fermé'" id="section-not-to-print" depressed fab absolute small right
+            direction="bottom" @click="hideNav">
+            <v-icon>mdi-printer</v-icon>
+          </v-btn>
           <v-card-text class="pb-0">
             <p class="display-1 text--primary font-weight-bold">
               Historique
@@ -101,12 +106,13 @@
 
             <v-row id="section-not-to-print">
               <v-col cols="12" md="2">
-                <p class="text--primary mb-0 mt-3" >
+                <p class="text--primary mb-0 mt-3">
                   Afficher :
                 </p>
               </v-col>
               <v-col cols="12" md="10">
-                <v-select v-model="defaultCommentType" :items="commentTypes" label="selectionner" single-line dense chips class="state-select-panel" @change="showCommentChanged"></v-select>
+                <v-select v-model="defaultCommentType" :items="commentTypes" label="selectionner" single-line dense
+                  chips class="state-select-panel" @change="showCommentChanged"></v-select>
               </v-col>
             </v-row>
             <v-timeline dense clipped>
@@ -128,27 +134,33 @@
                 </span>
                 <v-row v-if="ticket.state != 'Fermé'">
                   <v-col cols="12" md="6">
-                    <v-btn class="mx-0 font-weight-bold comment-button" color="green" block dark depressed @click="comment('public')">
+                    <v-btn class="mx-0 font-weight-bold comment-button" color="green" block dark depressed
+                      @click="comment('public')">
                       Ajouter(publique)
                     </v-btn>
                   </v-col>
                   <v-col cols="12" md="6">
-                    <v-btn class="mx-0 font-weight-bold comment-button" color="blue" block dark depressed @click="comment('private')">
+                    <v-btn class="mx-0 font-weight-bold comment-button" color="blue" block dark depressed
+                      @click="comment('private')">
                       Ajouter(privé)
                     </v-btn>
                   </v-col>
                 </v-row>
               </v-timeline-item>
               <v-slide-x-transition v-if="events" group>
-                <v-timeline-item v-for="(event,i) in timeline" :key="i" class="mb-4" color="green" small style="display:flex;flex-wrap:wrap;">
+                <v-timeline-item v-for="(event, i) in timeline" :key="i" class="mb-4" color="green" small
+                  style="display:flex;flex-wrap:wrap;">
                   <v-row justify="space-between" style="align-items: center;">
                     <v-col>
                       <v-card elevation="1">
-                        <v-card-text class="black--text" style="white-space: pre-line">{{event.message}}</v-card-text>
+                        <v-card-text class="black--text" style="white-space: pre-line">{{ event.message }}</v-card-text>
                         <v-card-actions style="justify-content: end;" class="text-caption grey--text text--lighten-1">
-                          <v-chip v-if="event.private" color="blue" class="mr-3 lighten-1" dark small>Privé</v-chip>{{getDataTimeMS(event.created.at)}} | {{event.created.by.name}} {{event.created.by.surname}} <div id="section-not-to-print"> <v-btn v-if="ticket.state != 'Fermé'" icon @click="deleteEvent(i)" color="red lighten-2">
-                            <v-icon size="20">mdi-trash-can-outline</v-icon>
-                          </v-btn>
+                          <v-chip v-if="event.private" color="blue" class="mr-3 lighten-1" dark small>Privé</v-chip>
+                          {{ getDataTimeMS(event.created.at) }} | {{ event.created.by.name }} {{ event.created.by.surname }}
+                          <div id="section-not-to-print">
+                            <v-btn v-if="ticket.state != 'Fermé'" icon @click="deleteEvent(i)" color="red lighten-2">
+                              <v-icon size="20">mdi-trash-can-outline</v-icon>
+                            </v-btn>
                           </div>
                         </v-card-actions>
                       </v-card>
@@ -160,8 +172,7 @@
           </v-card-text>
         </v-card>
       </v-col>
-    </v-row>
-  </div>
+    </v-row>  </div>
 </template>
 <script>
 
@@ -199,8 +210,6 @@ export default {
   },
   methods: {
     async initialize () {
-      console.log('This is gonna cost ya')
-
       await db.collection('tickets').doc(this.$route.params.ticket_id).get()
         .then(document => {
           const ticket = document.data()
@@ -212,7 +221,6 @@ export default {
       this.events = this.ticket.history
 
       if (this.ticket.history) {
-        console.log(Object.keys(this.ticket.history).length)
         this.events = []
         for (let i = 0; i < Object.keys(this.ticket.history).length; i++) {
           this.events.push(
@@ -233,7 +241,6 @@ export default {
 
         this.filteredEvents = this.events
       }
-      console.log(this.events)
       if (this.ticket.images || !this.ticket.images === '') {
         for (var element in this.ticket.images) {
           var image = this.ticket.images[element]
@@ -264,19 +271,16 @@ export default {
         this.gallery.splice(this.gallery.findIndex(v => v.urlImage === this.selectedImage.urlImage), 1)
         this.dialog = false
 
-        const storageRef = await firebase.storage().ref().child(this.selectedImage.pathToStorage)
+        const storageRef = firebase.storage().ref().child(this.selectedImage.pathToStorage)
         await storageRef.delete()
 
-        await db.collection('tickets').doc(this.$route.params.ticket_id).update({
-          images: this.gallery
-        }, { merge: true })
+        this.updateTicketPhoto()
       } catch (err) {
         console.log(err)
       }
     },
     async uploadPhotos (photos) {
       // Upload images to firestore
-      console.log(photos)
       try {
         this.imageLoading = true
         for (let i = 0; i < photos.length; i++) {
@@ -286,19 +290,18 @@ export default {
           const fileURL = await storageRef.getDownloadURL()
 
           this.gallery.push({ urlImage: fileURL, pathToStorage: uploadSnapshot.metadata.fullPath })
-
-          console.log(uploadSnapshot)
-          console.log('uploading images to firestore')
         }
 
-        await db.collection('tickets').doc(this.$route.params.ticket_id).update({
-          images: this.gallery
-        }, { merge: true })
+        this.updateTicketPhoto()
+
         this.imageLoading = false
       } catch (err) {
         console.log(err)
         this.imageLoading = false
       }
+    },
+    async updateTicketPhoto () {
+      await db.collection('tickets').doc(this.$route.params.ticket_id).update({ images: this.gallery }, { merge: true })
     },
     selectImage (img) {
       this.dialog = true
@@ -317,45 +320,25 @@ export default {
     async comment (typeOfComment) {
       if (!this.historyComment) return
       try {
-        const currentLoggedInUserID = await firebase.auth().currentUser.uid
+        const currentLoggedInUserID = firebase.auth().currentUser.uid
         const technicianFullName = await db.collection('technician').doc(currentLoggedInUserID).get()
         const allHistory = await db.collection('tickets').doc(this.$route.params.ticket_id).get()
-        const getCurrentServerTime = +new Date()
+        const getCurrentServerTime = Date.now()
 
-        if (allHistory.data().history) {
-          const allPastHistory = allHistory.data().history
-          this.historyData = {
-            history: [...allPastHistory,
-              {
-                created: {
-                  at: getCurrentServerTime,
-                  by: {
-                    techID: currentLoggedInUserID,
-                    ...technicianFullName.data()
-                  }
-                },
-                message: this.historyComment,
-                private: typeOfComment === 'private'
-              }
-            ]
-          }
-        } else {
-          this.historyData = {
-            history: [
-              {
-                created: {
-                  at: getCurrentServerTime,
-                  by: {
-                    techID: currentLoggedInUserID,
-                    ...technicianFullName.data()
-                  }
-                },
-                message: this.historyComment,
-                private: typeOfComment === 'private'
-              }
-            ]
-          }
-        }
+        const allPastHistory = allHistory.data().history
+        this.historyData = allPastHistory ? { history: [...allPastHistory] } : { history: [] }
+
+        this.historyData.history.push({
+          created: {
+            at: getCurrentServerTime,
+            by: {
+              techID: currentLoggedInUserID,
+              ...technicianFullName.data()
+            }
+          },
+          message: this.historyComment,
+          private: typeOfComment === 'private'
+        })
 
         await db.collection('tickets').doc(this.$route.params.ticket_id).update(this.historyData, { merge: true })
 
@@ -413,9 +396,11 @@ export default {
   display: flex;
   flex-wrap: wrap;
 }
+
 .manage-ticket .gallery .mini-images {
   margin: 10px;
 }
+
 .manage-ticket .gallery .mini-images:hover,
 .manage-ticket .client-name {
   cursor: pointer;
@@ -425,43 +410,53 @@ export default {
   body * {
     visibility: hidden;
   }
-  #section-to-print, #section-to-print * {
+
+  #section-to-print,
+  #section-to-print * {
     visibility: visible;
   }
+
   #section-to-print {
     position: absolute;
     left: 0;
     top: 0;
   }
-  #section-not-to-print, #section-not-to-print *{
+
+  #section-not-to-print,
+  #section-not-to-print * {
     visibility: hidden;
     display: none;
   }
 
-  #ticket-info{
-    width:100% !important
+  #ticket-info {
+    width: 100% !important
   }
-   #history-info{
-    width:100% !important
+
+  #history-info {
+    width: 100% !important
   }
-  .section-to-print-ticket{
+
+  .section-to-print-ticket {
     margin-top: -90px !important;
     display: grid !important;
     grid-template-columns: 100vw !important;
   }
-.pagebreak {
-        clear: both !important;
-        page-break-after: always !important;
-    }
+
+  .pagebreak {
+    clear: both !important;
+    page-break-after: always !important;
+  }
 }
 
 @media screen and (max-width: 800px) and (orientation: portrait) {
   .v-timeline-item__divider {
     display: none !important;
   }
+
   .v-timeline--dense .v-timeline-item__body {
     max-width: 100% !important;
   }
+
   .v-timeline::before {
     display: none !important;
   }
