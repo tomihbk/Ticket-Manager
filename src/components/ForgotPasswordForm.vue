@@ -50,7 +50,7 @@ export default {
         this.loading = true
         await firebase.auth().sendPasswordResetEmail(this.email)
         this.greenFeedback = true
-        this.feedback = `La demande pour réinitialiser votre mot de passe à  été envoyée sur ${this.email}`
+        this.feedback = `La demande pour réinitialiser votre mot de passe à été envoyée sur ${this.email}`
         this.loading = false
       } catch (err) {
         this.greenFeedback = this.loading = false
