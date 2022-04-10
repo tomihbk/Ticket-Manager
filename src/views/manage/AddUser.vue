@@ -56,6 +56,7 @@
 import db from '@/firebase/api'
 import algolia from '@/algolia/clientsIndices'
 import firebase from 'firebase'
+import RemoveNullData from '../../util/removeNullData'
 export default {
   data () {
     return {
@@ -91,13 +92,11 @@ export default {
       } else {
         this.feedback = null
 
-        this.clientData.created.at = await firebase.firestore.FieldValue.serverTimestamp()
+        this.clientData.created.at = firebase.firestore.FieldValue.serverTimestamp()
+
         // This removes null data recursivly from javascript objects
-        const dataWithoutNull = Object.fromEntries(
-          Object.entries(this.clientData)
-            .filter(([_, v]) => v != null)
-            .map(([k, v]) => [k, v === Object(v) ? Object.fromEntries(Object.entries(v).filter(([_, v]) => v != null)) : v])
-        )// Data has been cleaned
+        const dataWithoutNull = RemoveNullData(this.clientData)
+
         try {
           this.loading = true
           const newUser = await db.collection('clients').doc()
