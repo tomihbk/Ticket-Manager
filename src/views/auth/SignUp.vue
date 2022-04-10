@@ -55,7 +55,6 @@ export default {
         },
         strongPassword: value => {
           const pattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/
-          console.log(pattern.test(value))
           return pattern.test(value) || 'Minimum 5 caractères, au moins une lettre majuscule, une lettre minuscule et un chiffre'
         },
         identic: () => {
@@ -86,7 +85,6 @@ export default {
         })
         this.$router.push({ name: 'login' })
       } catch (err) {
-        console.log(err)
         if (err.code === 'auth/email-already-in-use' || err.message === 'EMAIL_EXISTS') {
           this.feedback = "L'email est déjà enregistré dans le système"
         }
