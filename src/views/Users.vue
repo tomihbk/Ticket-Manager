@@ -104,7 +104,7 @@ export default {
         })
       this.loadingData = false
     },
-    editFullUser (selectedUser) {
+    editFullUser (mouseHandler, selectedUser) {
       // get item id and send via router prop to manage page
       this.$router.push({ name: 'manageuser', params: { client_id: selectedUser.item.id } })
     },

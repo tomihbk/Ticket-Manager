@@ -35,7 +35,7 @@
               <v-text-field type="text" v-model="ticketData.title" label="Titre" :rules="[rules.required]" dense></v-text-field>
             </v-col>
             <v-col cols="12" sm="12">
-              <v-select v-model="ticketData.type" :items="tickettype" :rules="[rules.required]" label="Catégorie" required></v-select>
+              <v-select v-model="ticketData.type" :items="ticketType" :rules="[rules.required]" label="Catégorie" required></v-select>
             </v-col>
             <v-col cols="12" md="12">
               <v-textarea type="text" v-model="ticketData.description" label="Description de problème" :rules="[rules.required]" dense></v-textarea>
