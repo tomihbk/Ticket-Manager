@@ -120,7 +120,7 @@ export default {
       }
     },
     async stateChanged (ticketFirebaseId, currentState, oldState, isIncremented) {
-      openedTicketCountHandler(ticketFirebaseId, currentState, oldState, isIncremented)
+      await openedTicketCountHandler(ticketFirebaseId, currentState, oldState, isIncremented)
     },
     async setPriority (ticketFirebaseId, priority) {
       try {
