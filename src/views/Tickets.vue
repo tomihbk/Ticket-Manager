@@ -149,7 +149,7 @@ export default {
         console.log(err)
       }
     },
-    editItem (selectedTicket) {
+    editItem (mousevent, selectedTicket) {
       // get item id and send via router prop to manage page
       this.$router.push({ name: 'manageticket', params: { ticket_id: selectedTicket.item.id } })
     },
