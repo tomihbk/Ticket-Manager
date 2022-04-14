@@ -3,7 +3,7 @@
     <v-container fluid fill-height>
       <v-sheet color="white" elevation="1" class="container ticket-sheet rounded-lg" align="center">
         <h1 class="mb-5">Créer un ticket</h1>
-        <v-form ref="form" class="mt-5 mx-5 signup-form" @submit.prevent="validate">
+        <v-form ref="form" class="mt-5 mx-5 signup-form" @submit.prevent="validateForm">
           <v-row>
             <v-col cols="12" md="12">
               <ais-instant-search :search-client="searchClient" :index-name="algoliaIndexName">
@@ -30,7 +30,6 @@
                 </ais-autocomplete>
               </ais-instant-search>
             </v-col>
-
             <v-col cols="12" md="12">
               <v-text-field type="text" v-model="ticketData.title" label="Titre" :rules="[rules.required]" dense></v-text-field>
             </v-col>
@@ -52,7 +51,7 @@
               <v-file-input accept="image/*" label="Importer une/des image(s)" @change="previewFiles" multiple dense></v-file-input>
             </v-col>
           </v-row>
-          <v-btn large color="green" :loading="loading" dark depressed @click="validate" class="mt-5"><span class="font-weight-bold">créer ticket</span> </v-btn>
+          <v-btn large color="green" :loading="loading" dark depressed @click="validateForm" class="mt-5"><span class="font-weight-bold">créer ticket</span> </v-btn>
           <p class="feedback">
             {{this.feedback}}
           </p>
@@ -104,8 +103,8 @@ export default {
   methods: {
     getObjectid (id, index) {
       if (id) {
-        console.log(id[index])
-        this.ticketData.user = id[index].objectID
+        // console.log(JSON.stringify(id[index].objectID))
+        this.ticketData.user.id = id[index].objectID
         this.isSelected = true
         this.fieldname = `${id[index].name} ${id[index].surname}`
       }
@@ -117,8 +116,44 @@ export default {
     clearSignature () {
       this.$refs.signaturePad.clearSignature()
     },
-    async validate () {
-      this.$refs.form.validate()
+    async uploadPhotos (ticketID) {
+      // Upload images to firestore
+      for (let i = 0; i < this.uploadedImages.length; i++) {
+        const storageRef = firebase.storage().ref(`/tickets/${ticketID}/${this.uploadedImages[i].name}`)
+        var uploadSnapshot = await storageRef.put(this.uploadedImages[i])
+        const fileURL = await storageRef.getDownloadURL()
+        this.ticketData.images.push({ urlImage: fileURL, pathToStorage: uploadSnapshot.metadata.fullPath })
+        console.log(uploadSnapshot)
+        console.log('uploading images to firestore')
+      }
+    },
+    async uploadSignature (ticketID) {
+      const { isEmpty, data } = this.$refs.signaturePad.saveSignature()
+      if (!isEmpty) {
+        this.signaturePadError = false
+        const storageRef = firebase.storage().ref(`/tickets/${ticketID}/signature.png`)
+        const signURL = await storageRef.putString(data, 'data_url')
+
+        const fileURL = await storageRef.getDownloadURL()
+        this.ticketData.signature = {
+          urlImage: fileURL,
+          pathToStorage: signURL.metadata.fullPath
+        }
+        console.log('signature uploaded')
+      } else {
+        this.signaturePadError = true
+        console.log('signature not uploaded')
+      }
+    },
+    removeEmpty (obj) {
+      return Object.fromEntries(
+        Object.entries(obj)
+          .filter(([_, v]) => v != null)
+          .map(([k, v]) => [k, v === Object(v) ? this.removeEmpty(v) : v])
+      )
+    },
+    async validateForm () {
+      await this.$refs.form.validate()
 
       if (this.signPadIsShown) {
         const { isEmpty } = this.$refs.signaturePad.saveSignature()
@@ -130,8 +165,9 @@ export default {
       }
 
       // Checks if all needed data aren't null
-      if (!this.ticketData.title || !this.ticketData.type || !this.ticketData.description || this.signaturePadError || !this.ticketData.user) {
+      if (!this.ticketData.title || !this.ticketData.type || !this.ticketData.description || this.signaturePadError || !this.ticketData.user.id) {
         this.feedback = 'Les champs : client, titre, catégorie, description, (signature, si boîte est affichée), doivent être remplis.'
+        return false
       } else {
         this.feedback = null
 
@@ -143,15 +179,15 @@ export default {
 
         const currentLogedInUserID = firebase.auth().currentUser.uid
         const technicianFullName = await db.collection('technician').doc(currentLogedInUserID).get()
-        const clientFullName = await db.collection('clients').doc(this.ticketData.user).get()
+        const clientFullName = await db.collection('clients').doc(this.ticketData.user.id).get()
         // Creation time will be server's date
         this.ticketData.created = {
-          at: await firebase.firestore.FieldValue.serverTimestamp(),
+          at: firebase.firestore.FieldValue.serverTimestamp(),
           by: { id: currentLogedInUserID, ...technicianFullName.data() }
         }
 
         this.ticketData.user = {
-          id: this.ticketData.user,
+          id: this.ticketData.user.id,
           surname: await clientFullName.data().surname,
           name: await clientFullName.data().name
         }
@@ -162,46 +198,14 @@ export default {
         try {
           this.loading = true
 
-          // Upload images to firestore
-          if (this.ticketData.images) {
-            for (let i = 0; i < this.uploadedImages.length; i++) {
-              const storageRef = firebase.storage().ref(`/tickets/${ticketDocID.id}/${this.uploadedImages[i].name}`)
-              var uploadSnapshot = await storageRef.put(this.uploadedImages[i])
-              const fileURL = await storageRef.getDownloadURL()
-              this.ticketData.images.push({ urlImage: fileURL, pathToStorage: uploadSnapshot.metadata.fullPath })
-              console.log(uploadSnapshot)
-              console.log('uploading images to firestore')
-            }
-          } else {
-            console.log('no pics to upload')
-          }
+          // upload signature images
+          if (this.ticketData.images) await this.uploadPhotos(ticketDocID.id)
 
           // upload signature image
-          if (this.signPadIsShown) {
-            const { isEmpty, data } = this.$refs.signaturePad.saveSignature()
-            if (!isEmpty) {
-              this.signaturePadError = false
-              const storageRef = firebase.storage().ref(`/tickets/${ticketDocID.id}/signature.png`)
-              const signURL = await storageRef.putString(data, 'data_url')
-
-              const fileURL = await storageRef.getDownloadURL()
-              this.ticketData.signature = {
-                urlImage: fileURL,
-                pathToStorage: signURL.metadata.fullPath
-              }
-              console.log('signature uploaded')
-            } else {
-              this.signaturePadError = true
-              console.log('signature not uploaded')
-            }
-          }
+          if (this.signPadIsShown) await this.uploadSignature(ticketDocID.id)
 
           // This removes null data recursivly from javascript objects
-          const dataWithoutNull = Object.fromEntries(
-            Object.entries(this.ticketData)
-              .filter(([_, v]) => v != null)
-              .map(([k, v]) => [k, v === Object(v) ? Object.fromEntries(Object.entries(v).filter(([_, v]) => v != null)) : v])
-          )// Data has been cleaned
+          const dataWithoutNull = this.removeEmpty(this.ticketData)// Data has been cleaned
           // Sending all ticketdata
           await ticketDocID.set(dataWithoutNull)
           await statsRef.update({
