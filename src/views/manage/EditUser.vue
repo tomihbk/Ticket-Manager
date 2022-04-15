@@ -57,6 +57,8 @@
 <script>
 import db from '@/firebase/api'
 import algoindex from '@/algolia/clientsIndices'
+import RemoveNullData from '../../util/removeNullData'
+
 export default {
   data: () => ({
     firestoreID: null,
@@ -93,7 +95,6 @@ export default {
           this.firestoreID = document.id
 
           this.clientData = clientData
-          console.log(this.firestoreID)
         }
         )
     },
@@ -105,11 +106,8 @@ export default {
         this.feedback = null
 
         // This removed null data recursivly from javascript objects
-        const dataWithoutNull = Object.fromEntries(
-          Object.entries(this.clientData)
-            .filter(([_, v]) => v != null)
-            .map(([k, v]) => [k, v === Object(v) ? Object.fromEntries(Object.entries(v).filter(([_, v]) => v != null)) : v])
-        )// Data has been cleaned
+        const dataWithoutNull = RemoveNullData(this.clientData)
+
         try {
           this.loading = true
           await db.collection('clients').doc(this.firestoreID).update(dataWithoutNull)
@@ -131,7 +129,6 @@ export default {
       await db.collection('tickets').where('user.id', '==', this.$route.params.client_id).get().then(snap => {
         snap.forEach(async doc => {
           try {
-            console.log(doc.id)
             const ref = await db.collection('tickets').doc(doc.id)
             batch.update(ref, { 'user.name': this.clientData.name, 'user.surname': this.clientData.surname })
           } catch (err) {

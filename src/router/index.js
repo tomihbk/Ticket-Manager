@@ -4,7 +4,6 @@ import Dashboard from '@/views/Dashboard.vue'
 import Archive from '@/views/Archive.vue'
 import Login from '@/views/auth/Login.vue'
 import SignUp from '@/views/auth/SignUp.vue'
-import Ticket from '@/views/Ticket.vue'
 import Tickets from '@/views/Tickets.vue'
 import Users from '@/views/Users.vue'
 import PageNotFound from '@/views/PageNotFound.vue'
@@ -35,14 +34,6 @@ const router = new VueRouter({
       name: 'users',
       component: Users,
       props: true,
-      meta: {
-        requiresAuth: true // This component requires auth before acessing
-      }
-    },
-    {
-      path: '/ticket/:id',
-      name: 'ticket',
-      component: Ticket,
       meta: {
         requiresAuth: true // This component requires auth before acessing
       }

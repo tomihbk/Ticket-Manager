@@ -87,8 +87,6 @@ export default {
   },
   methods: {
     async initialize () {
-      console.log('This is gonna cost ya')
-
       await db.collection('clients').doc(this.$route.params.client_id).get()
         .then(document => {
           const client = document.data()
@@ -99,14 +97,12 @@ export default {
       await db.collection('tickets').where('user.id', '==', this.$route.params.client_id).get()
         .then(snapshot => {
           snapshot.forEach(document => {
-            console.log(document.data())
             const tickets = document.data()
             tickets.id = document.id
             tickets.created.at.seconds = moment.unix(document.data().created.at.seconds).format('DD-MM-YYYY à HH:mm')
             this.ticketList.push(tickets)
           })
         })
-      console.log(this.ticketList)
     },
     modifyClient () {
       this.$router.push({ name: 'edituser', params: { client_id: this.$route.params.client_id } })

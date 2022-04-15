@@ -24,7 +24,7 @@
           </v-toolbar>
         </template>
         <template v-slot:[`item.state`]="{ item }" width="100px">
-          <v-select v-model="item.state" :items="ticketState" label="Select" return-object single-line chips class="state-select-panel" @change="stateChanged(item.id,item.state,item.oldstate)"></v-select>
+          <v-select v-model="item.state" :items="ticketState" label="Select" return-object single-line chips class="state-select-panel" @change="stateChanged(item.id,item.state,item.oldstate,true)"></v-select>
         </template>
 
         <template v-slot:[`item.type`]="{ item }">
@@ -52,6 +52,7 @@ import db from '@/firebase/api'
 import algoindex from '@/algolia/clientsIndices'
 import moment from 'moment'
 import firebase from 'firebase'
+import openedTicketCountHandler from '../util/openedTicketCountHandler'
 export default {
   data: () => ({
     ticketState: ['Nouveau', 'En cours', 'En attente de commande', 'En attente de client', 'A facturé', 'Fermé'],
@@ -90,7 +91,6 @@ export default {
 
   methods: {
     initialize () {
-      console.log('This is gonna cost ya')
       this.loadingData = true
 
       db.collection('tickets').where('state', '==', 'Fermé').get()
@@ -119,50 +119,31 @@ export default {
           return 'white'
       }
     },
-    async stateChanged (ticketFBId, state, oldState) {
-      if (oldState === 'Fermé' && state !== 'Fermé') {
-        const statsRef = db.collection('stats').doc('stats')
-        await statsRef.update({
-          'total-opened-tickets': firebase.firestore.FieldValue.increment(1)
-        })
-      }
-
-      try {
-        await db.collection('tickets').doc(ticketFBId).update({
-          state: state,
-          oldstate: state
-        })
-      } catch (err) {
-        console.log(err)
-      }
+    async stateChanged (ticketFirebaseId, currentState, oldState, isIncremented) {
+      await openedTicketCountHandler(ticketFirebaseId, currentState, oldState, isIncremented)
     },
-    async setPriority (ticketFBId, priority) {
+    async setPriority (ticketFirebaseId, priority) {
       try {
-        await db.collection('tickets').doc(ticketFBId).update({
+        await db.collection('tickets').doc(ticketFirebaseId).update({
           priority: priority
         })
       } catch (err) {
         console.log(err)
       }
     },
-    test (item) {
-      console.log(item)
-    },
-    editItem (mouseEvent, item) {
+    editItem (mousevent, selectedTicket) {
       // get item id and send via router prop to manage page
-      this.$router.push({ name: 'manageticket', params: { ticket_id: item.item.id } })
+      this.$router.push({ name: 'manageticket', params: { ticket_id: selectedTicket.item.id } })
     },
-    deleteTicket (item) {
-      this.editedIndex = this.tickets.indexOf(item)
+    deleteTicket (selectedTicket) {
+      this.editedIndex = this.tickets.indexOf(selectedTicket)
 
-      this.editedItem = Object.assign({}, item)
+      this.editedItem = Object.assign({}, selectedTicket)
       this.dialogDelete = true
     },
 
     async deleteItemConfirm () {
-      console.log('1')
       const deletedTicket = this.tickets[this.editedIndex]
-      console.log(deletedTicket)
       // await db.collection('tickets').doc(deletedTicket.id).delete()
       this.tickets.splice(this.editedIndex, 1)
       this.closeDelete()
@@ -171,7 +152,6 @@ export default {
       if (deletedTicket.images) {
         for (let i = 0; i < Object.keys(deletedTicket.images).length; i++) {
           const storageRef = firebase.storage().ref().child(`${deletedTicket.images[i].pathToStorage}`)
-
           // Delete the files
           await storageRef.delete().then(() => {
             console.log('images successfully deleted')

@@ -61,6 +61,7 @@
 import db from '@/firebase/api'
 import algoliaTicket from '@/algolia/ticketsIndices'
 import * as algoliasearch from 'algoliasearch'
+import RemoveNullData from '../../util/removeNullData'
 
 export default {
   data () {
@@ -118,8 +119,8 @@ export default {
         this.feedback = null
 
         const ticketDocID = await db.collection('tickets').doc(this.$route.params.ticket_id)
-
         const clientFullName = await db.collection('clients').doc(this.ticketData.user.id).get()
+
         this.ticketData.user = {
           id: this.ticketData.user.id,
           surname: await clientFullName.data().surname,
@@ -128,12 +129,8 @@ export default {
 
         try {
           this.loading = true
-          // This removes null data recursivly from javascript objects
-          const dataWithoutNull = Object.fromEntries(
-            Object.entries(this.ticketData)
-              .filter(([_, v]) => v != null)
-              .map(([k, v]) => [k, v === Object(v) ? Object.fromEntries(Object.entries(v).filter(([_, v]) => v != null)) : v])
-          )// Data has been cleaned
+
+          const dataWithoutNull = RemoveNullData(this.ticketData)
 
           // Sending all ticketdata
           await ticketDocID.update(dataWithoutNull)
@@ -142,7 +139,6 @@ export default {
           dataWithoutNull.objectID = ticketDocID.id
 
           await algoliaTicket.saveObjects([dataWithoutNull])
-          console.log('Sent to aloglia')
           this.loading = false
           this.$router.push({ name: 'tickets' })
         } catch (err) {

@@ -65,13 +65,9 @@ export default {
   methods: {
     validate () {
       this.$refs.form.validate()
-      console.log(this.email)
-      console.log(this.password)
-
       if (!this.password || !this.email) {
         return false
       }
-      console.log('validated')
       this.login()
     },
     async login () {
