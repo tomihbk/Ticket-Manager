@@ -13,7 +13,7 @@
                     <template v-if="currentRefinement">
                       <v-card class="mx-auto resultcard" tile v-for="index in indices" :key="index.indexId" :class="{'selectedClient' : isSelected}">
                         <template v-if="index">
-                          <v-list-item v-for="(hit,i) in index.hits" :key="hit.objectID" @click="getObjectid(index.hits,i)">
+                          <v-list-item v-for="(hit,i) in index.hits" :key="hit.objectID" @click="getObjectId(index.hits,i)">
                             <v-list-item-content>
                               <v-list-item-title>
                                 <ais-highlight attribute="name" :hit="hit" />
@@ -101,7 +101,7 @@ export default {
     }
   },
   methods: {
-    getObjectid (id, index) {
+    getObjectId (id, index) {
       if (id) {
         // console.log(JSON.stringify(id[index].objectID))
         this.ticketData.user.id = id[index].objectID
@@ -163,7 +163,6 @@ export default {
       // Checks if all needed data aren't null
       if (!this.ticketData.title || !this.ticketData.type || !this.ticketData.description || this.signaturePadError || !this.ticketData.user.id) {
         this.feedback = 'Les champs : client, titre, catégorie, description, (signature, si boîte est affichée), doivent être remplis.'
-        return false
       } else {
         this.feedback = null
 
@@ -202,6 +201,7 @@ export default {
 
           // This removes null data recursivly from javascript objects
           const dataWithoutNull = this.removeEmpty(this.ticketData)// Data has been cleaned
+
           // Sending all ticketdata
           await ticketDocID.set(dataWithoutNull)
           await statsRef.update({

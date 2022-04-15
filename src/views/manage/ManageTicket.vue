@@ -326,6 +326,8 @@ export default {
         const getCurrentServerTime = Date.now()
 
         const allPastHistory = allHistory.data().history
+
+        // Import old comments if they exist if not, simply init history as an array
         this.historyData = allPastHistory ? { history: [...allPastHistory] } : { history: [] }
 
         this.historyData.history.push({
@@ -342,7 +344,7 @@ export default {
 
         await db.collection('tickets').doc(this.$route.params.ticket_id).update(this.historyData, { merge: true })
 
-        // If events is undefined, initiate an empty array
+        // If events are undefined, initiate an empty array
         if (!this.events) {
           this.events = []
           this.firstEventData = true

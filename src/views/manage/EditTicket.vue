@@ -119,8 +119,8 @@ export default {
         this.feedback = null
 
         const ticketDocID = await db.collection('tickets').doc(this.$route.params.ticket_id)
-
         const clientFullName = await db.collection('clients').doc(this.ticketData.user.id).get()
+
         this.ticketData.user = {
           id: this.ticketData.user.id,
           surname: await clientFullName.data().surname,
