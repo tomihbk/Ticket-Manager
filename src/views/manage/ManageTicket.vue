@@ -174,22 +174,25 @@
       </v-col>
     </v-row>  </div>
 </template>
-<script>
 
+<script lang="ts">
+import Vue from 'vue'
 import moment from 'moment'
-import db from '@/firebase/api'
+import db from '../../firebase/api'
 import firebase from 'firebase'
-export default {
+import { imagesInterface } from 'types/types'
+
+export default Vue.extend({
   data: () => ({
-    ticket: null,
+    ticket: null || {} as firebase.firestore.DocumentData,
     dialog: false,
-    selectedImage: null,
-    events: [],
+    selectedImage: null || {} as any,
+    events: [] as any,
     historyComment: null,
-    historyData: null,
+    historyData: { history: [] } as any,
     imageLoading: false,
     firstEventData: false,
-    gallery: [],
+    gallery: [] as imagesInterface[],
     defaultCommentType: 'Tout',
     commentTypes: ['Tout', 'Privé', 'Publique'],
     selectedCommentType: null,
@@ -212,7 +215,7 @@ export default {
     async initialize () {
       await db.collection('tickets').doc(this.$route.params.ticket_id).get()
         .then(document => {
-          const ticket = document.data()
+          const ticket = document.data() as firebase.firestore.DocumentData
           ticket.id = document.id
           this.ticket = ticket
         }
@@ -241,7 +244,7 @@ export default {
 
         this.filteredEvents = this.events
       }
-      if (this.ticket.images || !this.ticket.images === '') {
+      if (this.ticket.images || this.ticket.images !== '') {
         for (var element in this.ticket.images) {
           var image = this.ticket.images[element]
           this.gallery.push({ pathToStorage: image.pathToStorage, urlImage: image.urlImage })
@@ -254,14 +257,14 @@ export default {
     openClientProfile () {
       this.$router.push({ name: 'manageuser', params: { client_id: this.ticket.user.id } })
     },
-    async deleteEvent (index) {
+    async deleteEvent (index:number) {
       try {
         this.events.reverse().splice([index], 1)
         this.filteredEvents = this.events.reverse()
 
         await db.collection('tickets').doc(this.$route.params.ticket_id).update({
           history: this.events
-        }, { merge: true })
+        } as any, { merge: true })
       } catch (err) {
         console.log(err)
       }
@@ -279,7 +282,7 @@ export default {
         console.log(err)
       }
     },
-    async uploadPhotos (photos) {
+    async uploadPhotos (photos:File[]) {
       // Upload images to firestore
       try {
         this.imageLoading = true
@@ -301,31 +304,31 @@ export default {
       }
     },
     async updateTicketPhoto () {
-      await db.collection('tickets').doc(this.$route.params.ticket_id).update({ images: this.gallery }, { merge: true })
+      await db.collection('tickets').doc(this.$route.params.ticket_id).update({ images: this.gallery } as any, { merge: true })
     },
-    selectImage (img) {
+    selectImage (img:File) {
       this.dialog = true
       this.selectedImage = img
     },
     // This function returns a converted unixtime(epoch) to date and time
-    getDataTimeUnix (time) {
+    getDataTimeUnix (time:number) {
       return moment.unix(time).format('DD-MM-YY à HH:mm:ss')
     },
     // This function returns a converted milliseconds to date and time
-    getDataTimeMS (time) {
+    getDataTimeMS (time:number) {
       return moment(time).format('DD-MM-YY à HH:mm:ss')
     },
     // This function is called when submitting a comment
     // It takes 1 argument, it's whether privé or publique
-    async comment (typeOfComment) {
+    async comment (typeOfComment:string) {
       if (!this.historyComment) return
       try {
-        const currentLoggedInUserID = firebase.auth().currentUser.uid
+        const currentLoggedInUserID = firebase.auth().currentUser?.uid
         const technicianFullName = await db.collection('technician').doc(currentLoggedInUserID).get()
         const allHistory = await db.collection('tickets').doc(this.$route.params.ticket_id).get()
         const getCurrentServerTime = Date.now()
 
-        const allPastHistory = allHistory.data().history
+        const allPastHistory = allHistory.data()?.history
 
         // Import old comments if they exist if not, simply init history as an array
         this.historyData = allPastHistory ? { history: [...allPastHistory] } : { history: [] }
@@ -342,7 +345,7 @@ export default {
           private: typeOfComment === 'private'
         })
 
-        await db.collection('tickets').doc(this.$route.params.ticket_id).update(this.historyData, { merge: true })
+        await db.collection('tickets').doc(this.$route.params.ticket_id).update(this.historyData as any, { merge: true })
 
         // If events are undefined, initiate an empty array
         if (!this.events) {
@@ -372,13 +375,13 @@ export default {
       this.historyComment = null
     },
     // This function handles when the user filters comments
-    showCommentChanged (showComment) {
+    showCommentChanged (showComment:string) {
       switch (showComment) {
         case 'Privé':
-          this.filteredEvents = this.events.filter(event => event.private === true)
+          this.filteredEvents = this.events.filter((event:any) => event.private === true)
           break
         case 'Publique':
-          this.filteredEvents = this.events.filter(event => event.private !== true)
+          this.filteredEvents = this.events.filter((event:any) => event.private !== true)
           break
         case 'Tout':
           this.filteredEvents = this.events
@@ -390,7 +393,7 @@ export default {
       window.print()
     }
   }
-}
+})
 </script>
 
 <style>

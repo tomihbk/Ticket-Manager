@@ -13,7 +13,7 @@
                     <template v-if="currentRefinement">
                       <v-card class="mx-auto resultcard" tile v-for="index in indices" :key="index.indexId" :class="{'selectedClient' : isSelected}">
                         <template v-if="index">
-                          <v-list-item v-for="(hit,i) in index.hits" :key="hit.objectID" @click="getObjectid(index.hits,i)">
+                          <v-list-item v-for="(hit,i) in index.hits" :key="hit.objectID" @click="getObjectId(index.hits,i)">
                             <v-list-item-content>
                               <v-list-item-title>
                                 <ais-highlight attribute="name" :hit="hit" />
@@ -38,7 +38,7 @@
               <v-text-field type="text" v-model="ticketData.title" label="Titre" :rules="[rules.required]" dense></v-text-field>
             </v-col>
             <v-col cols="12" sm="12">
-              <v-select v-model="ticketData.type" :items="tickettype" :rules="[rules.required]" label="Catégorie" required></v-select>
+              <v-select v-model="ticketData.type" :items="ticketType" :rules="[rules.required]" label="Catégorie" required></v-select>
             </v-col>
               <v-col cols="12" sm="12">
               <v-select v-model="ticketData.state" :items="ticketState" :rules="[rules.required]" label="État" required></v-select>
@@ -57,16 +57,19 @@
   </div>
 </template>
 
-<script>
-import db from '@/firebase/api'
-import algoliaTicket from '@/algolia/ticketsIndices'
-import * as algoliasearch from 'algoliasearch'
+<script lang="ts">
+import Vue from 'vue'
+import db from '../../firebase/api'
+import algoliaTicket from '../../algolia/ticketsIndices'
+import algoliasearch from 'algoliasearch'
 import RemoveNullData from '../../util/removeNullData'
+import { ticketDataUserIdInterface } from 'types/types'
+import firebase from 'firebase'
 
-export default {
+export default Vue.extend({
   data () {
     return {
-      tickettype: ['Graphisme', 'Informatique', 'Web', 'Imprimerie'],
+      ticketType: ['Graphisme', 'Informatique', 'Web', 'Imprimerie'],
       ticketState: ['Nouveau', 'En cours', 'En attente de commande', 'En attente de client', 'A facturé', 'Fermé'],
       fieldname: '',
       isSelected: false,
@@ -74,17 +77,15 @@ export default {
       searchClient: algoliasearch(process.env.VUE_APP_ALGOLIA_APP_ID,
         process.env.VUE_APP_ALGOLIA_API_KEY),
       ticketData: {
-        user: {
-          id: null
-        },
+        user: null || {} as ticketDataUserIdInterface,
         title: null,
         type: null,
         description: null
-      },
+      } as firebase.firestore.DocumentData,
       loading: false,
-      feedback: null,
+      feedback: null || '',
       rules: {
-        required: value => !!value || 'Champ obligatoire'
+        required: (value:string) => !!value || 'Champ obligatoire'
       }
     }
   },
@@ -96,13 +97,15 @@ export default {
       await db.collection('tickets').doc(this.$route.params.ticket_id).get()
         .then(document => {
           const ticket = document.data()
-          this.ticketData = ticket
-          this.ticketData.user.id = ticket.user.id
+          this.ticketData = ticket as firebase.firestore.DocumentData
+          this.ticketData.user.id = ticket?.user.id
           this.isSelected = true
-          this.fieldname = `${ticket.user.name} ${ticket.user.surname}`
+          this.fieldname = `${ticket?.user.name} ${ticket?.user.surname}`
+
+          console.log(JSON.stringify(this.ticketData.signature))
         })
     },
-    getObjectid (id, index) {
+    getObjectId (id:any, index:number) {
       if (id) {
         this.ticketData.user.id = id[index].objectID
         this.isSelected = true
@@ -110,27 +113,27 @@ export default {
       }
     },
     async updateTicket () {
-      this.$refs.form.validate()
+      (this.$refs.form as Vue & { validate: () => boolean }).validate() // js version -> this.$refs.form.validate()
 
       // Checks if all needed data aren't null
       if (!this.ticketData.title || !this.ticketData.type || !this.ticketData.description || !this.ticketData.user) {
         this.feedback = 'Les champs : client, titre, catégorie, description, doivent être remplis.'
       } else {
-        this.feedback = null
+        this.feedback = ''
 
-        const ticketDocID = await db.collection('tickets').doc(this.$route.params.ticket_id)
+        const ticketDocID = db.collection('tickets').doc(this.$route.params.ticket_id)
         const clientFullName = await db.collection('clients').doc(this.ticketData.user.id).get()
 
         this.ticketData.user = {
           id: this.ticketData.user.id,
-          surname: await clientFullName.data().surname,
-          name: await clientFullName.data().name
+          surname: await clientFullName?.data()?.surname,
+          name: await clientFullName?.data()?.name
         }
 
         try {
           this.loading = true
 
-          const dataWithoutNull = RemoveNullData(this.ticketData)
+          const dataWithoutNull:any = RemoveNullData(this.ticketData)
 
           // Sending all ticketdata
           await ticketDocID.update(dataWithoutNull)
@@ -148,7 +151,7 @@ export default {
       }
     }
   }
-}
+})
 </script>
 
 <style>

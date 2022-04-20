@@ -3,8 +3,11 @@ import App from './App.vue'
 import router from './router'
 import vuetify from './plugins/vuetify'
 import firebase from 'firebase'
+// @ts-ignore
 import InstantSearch from 'vue-instantsearch'
+// @ts-ignore
 import VueAutosuggest from 'vue-autosuggest'
+// @ts-ignore
 import VueSignaturePad from 'vue-signature-pad'
 
 Vue.use(VueSignaturePad)
@@ -17,7 +20,7 @@ Vue.config.productionTip = false
 
 // Wait for firebase auth before vue render
 
-let app = null
+let app:Vue
 
 firebase.auth().onAuthStateChanged(() => {
   if (!app) {

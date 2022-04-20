@@ -10,14 +10,16 @@
   </v-app>
 </template>
 
-<script>
-import Navbar from '@/components/NavBar'
-export default {
+<script lang="ts">
+import Vue from 'vue'
+import Navbar from './components/NavBar.vue'
+
+export default Vue.extend({
   name: 'App',
   components: {
     Navbar
   }
-}
+})
 </script>
 
 <style lang="scss">

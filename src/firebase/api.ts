@@ -1,6 +1,6 @@
 import firebase from 'firebase'
 
-var firebaseConfig = {
+const firebaseConfig = {
   apiKey: process.env.VUE_APP_FIREBASE_API_KEY,
   authDomain: process.env.VUE_APP_FIREBASE_AUTHDOMAIN,
   projectId: process.env.VUE_APP_FIREBASE_PROJECT_ID,
@@ -11,5 +11,5 @@ var firebaseConfig = {
 
 // Initialize Firebase
 const firebaseApp = firebase.initializeApp(firebaseConfig)
-firebaseApp.firestore().settings({ timestampsInSnapshots: true })
+firebaseApp.firestore().settings({})
 export default firebaseApp.firestore()

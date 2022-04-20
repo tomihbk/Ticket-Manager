@@ -21,18 +21,20 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import firebase from 'firebase'
-export default {
+
+export default Vue.extend({
   name: 'ForgotPasswordForm',
   data: () => ({
     email: null,
     loading: false,
-    feedback: null,
+    feedback: '',
     greenFeedback: false,
     rules: {
-      required: value => !!value || 'Champ obligatoire',
-      email: value => {
+      required: (value:string) => !!value || 'Champ obligatoire',
+      email: (value:string) => {
         const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
         return pattern.test(value) || 'E-mail Invalide'
       }
@@ -40,11 +42,9 @@ export default {
   }),
   methods: {
     async submit () {
-      this.$refs.form.validate()
+      (this.$refs.form as Vue & { validate: () => boolean }).validate() // js version -> this.$refs.form.validate()
 
-      if (!this.email) {
-        return false
-      }
+      if (!this.email) return false
 
       try {
         this.loading = true
@@ -65,8 +65,8 @@ export default {
       }
     }
   }
-}
-</script>
+})
+</script>>
 
 <style>
 .forgotPassword{
