@@ -52,12 +52,14 @@
   </div>
 </template>
 
-<script>
-import db from '@/firebase/api'
-import algolia from '@/algolia/clientsIndices'
+<script lang="ts">
+import Vue from 'vue'
+import db from '../../firebase/api'
+import algolia from '../../algolia/clientsIndices'
 import firebase from 'firebase'
 import RemoveNullData from '../../util/removeNullData'
-export default {
+import { ticketDataUserCreatedInterface } from 'types/types'
+export default Vue.extend({
   data () {
     return {
       clientData: {
@@ -72,30 +74,28 @@ export default {
         },
         mobile: null,
         fixe: null,
-        created: {
-          at: null
-        },
+        created: null || {} as ticketDataUserCreatedInterface,
         email: null
       },
       loading: false,
-      feedback: null,
+      feedback: null || '',
       rules: {
-        required: value => !!value || 'Champ obligatoire'
+        required: (value:string) => !!value || 'Champ obligatoire'
       }
     }
   },
   methods: {
     async validate () {
-      this.$refs.form.validate()
+      (this.$refs.form as Vue & { validate: () => boolean }).validate() // js version -> this.$refs.form.validate()
       if (!this.clientData.name || !this.clientData.surname) {
         this.feedback = 'Les champs nom et prénom doivent être remplis'
       } else {
-        this.feedback = null
+        this.feedback = ''
 
         this.clientData.created.at = firebase.firestore.FieldValue.serverTimestamp()
 
         // This removes null data recursivly from javascript objects
-        const dataWithoutNull = RemoveNullData(this.clientData)
+        const dataWithoutNull:any = RemoveNullData(this.clientData)
 
         try {
           this.loading = true
@@ -120,7 +120,7 @@ export default {
       }
     }
   }
-}
+})
 </script>
 
 <style>

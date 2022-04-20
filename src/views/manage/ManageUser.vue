@@ -73,14 +73,16 @@
   </div>
 </template>
 
-<script>
-
+<script lang="ts">
+import Vue from 'vue'
 import moment from 'moment'
-import db from '@/firebase/api'
-export default {
+import db from '../../firebase/api'
+import firebase from 'firebase'
+
+export default Vue.extend({
   data: () => ({
-    client: null,
-    ticketList: []
+    client: {} as firebase.firestore.DocumentData | undefined,
+    ticketList: [] as firebase.firestore.DocumentData
   }),
   created () {
     this.initialize()
@@ -89,7 +91,7 @@ export default {
     async initialize () {
       await db.collection('clients').doc(this.$route.params.client_id).get()
         .then(document => {
-          const client = document.data()
+          const client = document.data() as firebase.firestore.DocumentData
           client.id = document.id
           this.client = client
         })
@@ -107,18 +109,18 @@ export default {
     modifyClient () {
       this.$router.push({ name: 'edituser', params: { client_id: this.$route.params.client_id } })
     },
-    editTicket (ticketID) {
+    editTicket (ticketID:string) {
       // get item id and send via router prop to manage page
       this.$router.push({ name: 'manageticket', params: { ticket_id: ticketID } })
     },
-    getDataTimeUnix (time) {
+    getDataTimeUnix (time:number) {
       return moment.unix(time).format('DD-MM-YY à HH:mm:ss')
     },
-    getDataTimeMS (time) {
+    getDataTimeMS (time:string) {
       return moment(time).format('DD-MM-YY à HH:mm:ss')
     }
   }
-}
+})
 </script>
 
 <style>

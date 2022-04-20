@@ -51,16 +51,18 @@
   </nav>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import firebase from 'firebase'
-import db from '@/firebase/api'
-export default {
+import db from '../firebase/api'
+
+export default Vue.extend({
   name: 'NavBar',
   data () {
     return {
-      technician: null,
+      technician: null as any,
       fab: false,
-      drawer: !this.isOnMobile(),
+      drawer: !(this as any).isOnMobile(),
       links: [
         { icon: 'mdi-view-dashboard', text: 'Dashboard', route: '/' },
         { icon: 'mdi-account-group', text: 'Clients', route: '/users' },
@@ -76,7 +78,7 @@ export default {
     goHome () {
       this.$router.push({ name: 'dashboard' })
     },
-    isOnMobile () {
+    isOnMobile (): boolean {
       return /Android|webOS|iPhone|iPad|Mac|Macintosh|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     },
     async logOut () {
@@ -88,12 +90,12 @@ export default {
       }
     },
     async initialize () {
-      const currentLogedInUserID = firebase.auth().currentUser.uid
+      const currentLogedInUserID = firebase.auth()?.currentUser?.uid
       const technicianFullName = await db.collection('technician').doc(currentLogedInUserID).get()
       this.technician = technicianFullName.data()
     }
   }
-}
+})
 </script>
 
 <style>

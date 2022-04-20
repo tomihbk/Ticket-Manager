@@ -53,15 +53,16 @@
     </div>
   </div>
 </template>
-
-<script>
-import db from '@/firebase/api'
-import algoindex from '@/algolia/clientsIndices'
+<script lang="ts">
+import Vue from 'vue'
+import db from '../../firebase/api'
+import algoindex from '../../algolia/clientsIndices'
 import RemoveNullData from '../../util/removeNullData'
+import firebase from 'firebase'
 
-export default {
+export default Vue.extend({
   data: () => ({
-    firestoreID: null,
+    firestoreID: null || '',
     clientData: {
       company: null,
       name: null,
@@ -76,11 +77,11 @@ export default {
       fixe: null,
 
       email: null
-    },
+    } as firebase.firestore.DocumentData,
     loading: false,
-    feedback: null,
+    feedback: null || '',
     rules: {
-      required: value => !!value || 'Champ obligatoire'
+      required: (value:string) => !!value || 'Champ obligatoire'
     }
 
   }),
@@ -94,19 +95,20 @@ export default {
           const clientData = document.data()
           this.firestoreID = document.id
 
-          this.clientData = clientData
+          this.clientData = clientData as firebase.firestore.DocumentData
         }
         )
     },
     async updateData () {
-      this.$refs.form.validate()
+      (this.$refs.form as Vue & { validate: () => boolean }).validate()
+
       if (!this.clientData.name || !this.clientData.surname) {
         this.feedback = 'Les champs nom et prénom doivent être remplis'
       } else {
-        this.feedback = null
+        this.feedback = ''
 
         // This removed null data recursivly from javascript objects
-        const dataWithoutNull = RemoveNullData(this.clientData)
+        const dataWithoutNull: {} | any = RemoveNullData(this.clientData)
 
         try {
           this.loading = true
@@ -139,7 +141,7 @@ export default {
       batch.commit()
     }
   }
-}
+})
 </script>
 
 <style>

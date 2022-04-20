@@ -51,11 +51,13 @@
   </div>
 </template>
 
-<script>
-import db from '@/firebase/api'
-import algoindex from '@/algolia/clientsIndices'
+<script lang="ts">
+import Vue from 'vue'
+import db from '../firebase/api'
+import algoindex from '../algolia/clientsIndices'
 import firebase from 'firebase'
-export default {
+
+export default Vue.extend({
   data: () => ({
     footerProps: { 'items-per-page-options': [30, 50, 100] },
     search: '',
@@ -72,7 +74,10 @@ export default {
       { text: 'Email', value: 'email' },
       { text: 'Actions', value: 'actions', sortable: false }
     ],
-    clients: [],
+    clients: [] as firebase.firestore.DocumentData,
+    editedItem: {},
+    editedIndex: {},
+    defaultItem: {},
     toaster: {
       snackbar: false,
       text: '',
@@ -104,15 +109,15 @@ export default {
         })
       this.loadingData = false
     },
-    editFullUser (mouseHandler, selectedUser) {
+    editFullUser (mousevent:MouseEvent, selectedUser:any) {
       // get item id and send via router prop to manage page
       this.$router.push({ name: 'manageuser', params: { client_id: selectedUser.item.id } })
     },
-    editItem (selectedUser) {
+    editItem (selectedUser:any) {
       // get item id and send via router prop to manage page
       this.$router.push({ name: 'edituser', params: { client_data: selectedUser, client_id: selectedUser.id } })
     },
-    deleteItem (item) {
+    deleteItem (item:number) {
       this.editedIndex = this.clients.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialogDelete = true
@@ -120,7 +125,7 @@ export default {
 
     async deleteItemConfirm () {
       try {
-        const deletedUser = this.clients[this.editedIndex]
+        const deletedUser = this.clients[this.editedIndex as number]
         await db.collection('clients').doc(deletedUser.id).delete()
         await algoindex.deleteObjects([deletedUser.id])
         const statsRef = db.collection('stats').doc('stats')
@@ -152,5 +157,5 @@ export default {
       })
     }
   }
-}
+})
 </script>

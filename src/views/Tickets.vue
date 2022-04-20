@@ -61,13 +61,15 @@
   </div>
 </template>
 
-<script>
-import db from '@/firebase/api'
-import algoindex from '@/algolia/clientsIndices'
+<script lang="ts">
+import Vue from 'vue'
+import db from '../firebase/api'
+import algoindex from '../algolia/clientsIndices'
 import moment from 'moment'
 import firebase from 'firebase'
 import openedTicketCountHandler from '../util/openedTicketCountHandler'
-export default {
+
+export default Vue.extend({
   data: () => ({
     ticketState: ['Nouveau', 'En cours', 'En attente de commande', 'En attente de client', 'A facturé', 'Fermé'],
     footerProps: { 'items-per-page-options': [30, 50, 100] },
@@ -86,7 +88,10 @@ export default {
       { text: 'Priorité', value: 'priority' },
       { text: 'Actions', value: 'actions', sortable: false }
     ],
-    tickets: [],
+    tickets: [] as firebase.firestore.DocumentData,
+    editedItem: {},
+    editedIndex: {},
+    defaultItem: {},
     toaster: {
       snackbar: false,
       text: '',
@@ -120,7 +125,7 @@ export default {
 
       this.loadingData = false
     },
-    getColor (category) {
+    getColor (category:string) {
       switch (category) {
         case 'Informatique':
           return 'red'
@@ -134,13 +139,13 @@ export default {
           return 'white'
       }
     },
-    modifyTicket (selectedTicket) {
+    modifyTicket (selectedTicket:any) {
       this.$router.push({ name: 'editticket', params: { ticket_id: selectedTicket.id } })
     },
-    async stateChanged (ticketFirebaseId, currentState, oldState, isIncremented) {
+    async stateChanged (ticketFirebaseId:string, currentState:string, oldState:string, isIncremented:boolean) {
       await openedTicketCountHandler(ticketFirebaseId, currentState, oldState, isIncremented)
     },
-    async setPriority (ticketFirebaseId, priority) {
+    async setPriority (ticketFirebaseId:string, priority:boolean) {
       try {
         await db.collection('tickets').doc(ticketFirebaseId).update({
           priority: priority
@@ -149,19 +154,18 @@ export default {
         console.log(err)
       }
     },
-    editItem (mousevent, selectedTicket) {
+    editItem (mousevent:MouseEvent, selectedTicket:any) {
       // get item id and send via router prop to manage page
       this.$router.push({ name: 'manageticket', params: { ticket_id: selectedTicket.item.id } })
     },
-    deleteTicket (selectedTicket) {
+    deleteTicket (selectedTicket:number) {
       this.editedIndex = this.tickets.indexOf(selectedTicket)
-
       this.editedItem = Object.assign({}, selectedTicket)
       this.dialogDelete = true
     },
 
     async deleteItemConfirm () {
-      const deletedTicket = this.tickets[this.editedIndex]
+      const deletedTicket = this.tickets[this.editedIndex as number]
       // await db.collection('tickets').doc(deletedTicket.id).delete()
       this.tickets.splice(this.editedIndex, 1)
       this.closeDelete()
@@ -214,7 +218,7 @@ export default {
       })
     }
   }
-}
+})
 </script>
 <style>
 .tickets .state-select-panel {

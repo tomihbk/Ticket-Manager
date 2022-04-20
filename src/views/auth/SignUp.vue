@@ -33,45 +33,46 @@
   </div>
 </template>
 
-<script>
-import db from '@/firebase/api'
+<script lang="ts">
+import Vue from 'vue'
+import db from '../../firebase/api'
 import firebase from 'firebase'
 
-export default {
+export default Vue.extend({
   name: 'signup',
   data () {
     return {
-      name: null,
-      surname: null,
-      email: null,
-      password: null,
-      confirmpassword: null,
-      feedback: null,
+      name: null || '',
+      surname: null || '',
+      email: null || '',
+      password: null || '',
+      confirmpassword: null || '',
+      feedback: null || '',
       rules: {
-        required: value => !!value || 'Champ obligatoire',
-        email: value => {
+        required: (value:string) => !!value || 'Champ obligatoire',
+        email: (value:string) => {
           const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
           return pattern.test(value) || 'E-mail Invalide'
         },
-        strongPassword: value => {
+        strongPassword: (value:string) => {
           const pattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}$/
           return pattern.test(value) || 'Minimum 5 caractères, au moins une lettre majuscule, une lettre minuscule et un chiffre'
         },
         identic: () => {
-          return this.password === this.confirmpassword || 'Les mots de passes ne sont pas identiques'
+          return (this as any).password === (this as any).confirmpassword || 'Les mots de passes ne sont pas identiques'
         }
       }
     }
   },
   methods: {
     validate () {
-      this.$refs.form.validate()
+      (this.$refs.form as Vue & { validate: () => boolean }).validate() // js version -> this.$refs.form.validate()
 
       if (!this.rules.required(this.name) &&
       !this.rules.required(this.surname) &&
       !this.rules.email(this.email) &&
       !this.rules.strongPassword(this.password) &&
-      !this.rules.identic(this.confirmpassword)) {
+      !this.rules.identic()) {
         return
       }
       this.signup()
@@ -79,7 +80,7 @@ export default {
     async signup () {
       try {
         const createdUser = await firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
-        await db.collection('technician').doc(createdUser.user.uid).set({
+        await db.collection('technician').doc(createdUser?.user?.uid).set({
           name: this.name,
           surname: this.surname
         })
@@ -91,7 +92,7 @@ export default {
       }
     }
   }
-}
+})
 </script>
 
 <style lang="scss">

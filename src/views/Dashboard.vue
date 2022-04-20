@@ -24,10 +24,11 @@
     </v-btn>
   </div>
 </template>
+<script lang="ts">
+import Vue from 'vue'
+import db from '../firebase/api'
 
-<script>
-import db from '@/firebase/api'
-export default {
+export default Vue.extend({
   data () {
     return {
       btnData: [
@@ -42,11 +43,11 @@ export default {
   methods: {
     async initialize () {
       const allStatsData = await db.collection('stats').doc('stats').get()
-      this.btnData[0].total = allStatsData.data()['total-opened-tickets']
-      this.btnData[1].total = allStatsData.data()['total-clients']
+      this.btnData[0].total = allStatsData.data()?.['total-opened-tickets']
+      this.btnData[1].total = allStatsData.data()?.['total-clients']
     }
   }
-}
+})
 </script>
 
 <style>

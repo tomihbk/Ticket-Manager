@@ -61,13 +61,16 @@
   </div>
 </template>
 
-<script>
-import db from '@/firebase/api'
+<script lang="ts">
+import Vue from 'vue'
+import db from '../../firebase/api'
 import firebase from 'firebase'
-import algoliaTicket from '@/algolia/ticketsIndices'
-import * as algoliasearch from 'algoliasearch'
+import algoliaTicket from '../../algolia/ticketsIndices'
+import algoliasearch from 'algoliasearch'
+import { ticketDataUserIdInterface, imagesInterface, ticketDataUserCreatedInterface } from 'types/types'
+import RemoveNullData from '../../util/removeNullData'
 
-export default {
+export default Vue.extend({
   data () {
     return {
       signPadIsShown: false,
@@ -80,28 +83,26 @@ export default {
         process.env.VUE_APP_ALGOLIA_API_KEY),
       ticketData: {
         ticketID: null,
-        user: {
-          id: null
-        },
+        user: null || {} as ticketDataUserIdInterface,
         title: null,
         type: null,
         description: null,
-        signature: null,
-        images: null,
-        created: null,
-        state: null,
-        priority: null
+        signature: {} as imagesInterface || null,
+        images: [] as imagesInterface[] || null,
+        created: null || {} as ticketDataUserCreatedInterface,
+        state: null || '',
+        priority: !!null
       },
-      uploadedImages: null,
+      uploadedImages: null as any,
       loading: false,
-      feedback: null,
+      feedback: null || '',
       rules: {
-        required: value => !!value || 'Champ obligatoire'
+        required: (value:string) => !!value || 'Champ obligatoire'
       }
     }
   },
   methods: {
-    getObjectId (id, index) {
+    getObjectId (id:any, index:number) {
       if (id) {
         // console.log(JSON.stringify(id[index].objectID))
         this.ticketData.user.id = id[index].objectID
@@ -109,14 +110,14 @@ export default {
         this.fieldname = `${id[index].name} ${id[index].surname}`
       }
     },
-    async previewFiles (files) {
+    async previewFiles (files:File) {
       this.uploadedImages = files
       this.ticketData.images = []
     },
     clearSignature () {
-      this.$refs.signaturePad.clearSignature()
+      (this.$refs.signaturePad as Vue & { clearSignature: () => boolean }).clearSignature()
     },
-    async uploadPhotos (ticketID) {
+    async uploadPhotos (ticketID:(string | number)) {
       // Upload images to firestore
       for (let i = 0; i < this.uploadedImages.length; i++) {
         const storageRef = firebase.storage().ref(`/tickets/${ticketID}/${this.uploadedImages[i].name}`)
@@ -127,8 +128,8 @@ export default {
         console.log('uploading images to firestore')
       }
     },
-    async uploadSignature (ticketID) {
-      const { isEmpty, data } = this.$refs.signaturePad.saveSignature()
+    async uploadSignature (ticketID:(string | number)) {
+      const { isEmpty, data }: boolean|any = (this.$refs.signaturePad as Vue & { saveSignature: () => boolean }).saveSignature()
       if (!isEmpty) {
         this.signaturePadError = false
         const storageRef = firebase.storage().ref(`/tickets/${ticketID}/signature.png`)
@@ -145,34 +146,27 @@ export default {
         console.log('signature not uploaded')
       }
     },
-    removeEmpty (obj) {
-      return Object.fromEntries(
-        Object.entries(obj)
-          .filter(([_, v]) => v != null)
-          .map(([k, v]) => [k, v === Object(v) ? this.removeEmpty(v) : v])
-      )
-    },
     async validateForm () {
-      await this.$refs.form.validate()
-
+      (this.$refs.form as Vue & { validate: () => boolean }).validate()
       if (this.signPadIsShown) {
-        const { isEmpty } = this.$refs.signaturePad.saveSignature()
+        const { isEmpty }:any = (this.$refs.signaturePad as Vue & { saveSignature: () => boolean }).saveSignature()
         this.signaturePadError = !!isEmpty // value converted to boolean using !!
       }
 
       // Checks if all needed data aren't null
       if (!this.ticketData.title || !this.ticketData.type || !this.ticketData.description || this.signaturePadError || !this.ticketData.user.id) {
         this.feedback = 'Les champs : client, titre, catégorie, description, (signature, si boîte est affichée), doivent être remplis.'
+        console.log('YOU-SHALL NOT PASS - signpadshwon', this.signPadIsShown)
       } else {
-        this.feedback = null
-
+        console.log('YOU SHALL PASS signpadshwon', this.signPadIsShown)
+        this.feedback = ''
         const statsRef = db.collection('stats').doc('stats')
-        const statsDoc = await statsRef.get()
-        const ticketDocID = await db.collection('tickets').doc()
+        const statsDoc: firebase.firestore.DocumentData = await statsRef.get()
+        const ticketDocID = db.collection('tickets').doc()
         // Adding unique ID ticket that will be human readable format
         this.ticketData.ticketID = statsDoc.data()['last-ticket-number']
 
-        const currentLogedInUserID = firebase.auth().currentUser.uid
+        const currentLogedInUserID = firebase.auth()?.currentUser?.uid
         const technicianFullName = await db.collection('technician').doc(currentLogedInUserID).get()
         const clientFullName = await db.collection('clients').doc(this.ticketData.user.id).get()
         // Creation time will be server's date
@@ -183,8 +177,8 @@ export default {
 
         this.ticketData.user = {
           id: this.ticketData.user.id,
-          surname: await clientFullName.data().surname,
-          name: await clientFullName.data().name
+          surname: await clientFullName?.data()?.surname,
+          name: await clientFullName?.data()?.name
         }
 
         this.ticketData.state = 'Nouveau'
@@ -194,16 +188,17 @@ export default {
           this.loading = true
 
           // upload signature images
-          if (this.ticketData.images) await this.uploadPhotos(ticketDocID.id)
+          if (this.uploadedImages) await this.uploadPhotos(ticketDocID.id)
 
           // upload signature image
           if (this.signPadIsShown) await this.uploadSignature(ticketDocID.id)
 
           // This removes null data recursivly from javascript objects
-          const dataWithoutNull = this.removeEmpty(this.ticketData)// Data has been cleaned
+          const dataWithoutNull: {} | any = RemoveNullData(this.ticketData)// Data has been cleaned
 
           // Sending all ticketdata
           await ticketDocID.set(dataWithoutNull)
+          console.log(JSON.stringify(dataWithoutNull))
           await statsRef.update({
             'last-ticket-number': firebase.firestore.FieldValue.increment(1),
             'total-opened-tickets': firebase.firestore.FieldValue.increment(1)
@@ -216,12 +211,13 @@ export default {
           this.loading = false
           this.$router.push({ name: 'tickets' })
         } catch (err) {
+          console.log(err)
           this.loading = false
         }
       }
     }
   }
-}
+})
 </script>
 
 <style>

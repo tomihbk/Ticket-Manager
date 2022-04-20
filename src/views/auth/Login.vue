@@ -38,11 +38,12 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import firebase from 'firebase'
-import ForgotPassword from '@/components/ForgotPasswordForm'
+import ForgotPassword from '../../components/ForgotPasswordForm.vue'
 
-export default {
+export default Vue.extend({
   name: 'login',
   components: {
     ForgotPassword
@@ -50,12 +51,12 @@ export default {
   data () {
     return {
       dialog: false,
-      email: null,
-      password: null,
-      feedback: null,
+      email: '',
+      password: '',
+      feedback: '',
       rules: {
-        required: value => !!value || 'Champ obligatoire',
-        email: value => {
+        required: (value:string) => !!value || 'Champ obligatoire',
+        email: (value:string) => {
           const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
           return pattern.test(value) || 'E-mail Invalide'
         }
@@ -64,15 +65,14 @@ export default {
   },
   methods: {
     validate () {
-      this.$refs.form.validate()
-      if (!this.password || !this.email) {
-        return false
-      }
+      (this.$refs.form as Vue & { validate: () => boolean }).validate() // js version -> this.$refs.form.validate()
+
+      if (!this.password || !this.email) return false
+
       this.login()
     },
     async login () {
       try {
-        this.feedback = null
         await firebase.auth().signInWithEmailAndPassword(this.email, this.password)
         this.$router.push({ name: 'dashboard' })
       } catch (err) {
@@ -96,7 +96,7 @@ export default {
       }
     }
   }
-}
+})
 </script>
 
 <style lang="scss">
