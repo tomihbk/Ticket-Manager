@@ -11,5 +11,5 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const firebaseApp = firebase.initializeApp(firebaseConfig)
-firebaseApp.firestore().settings({})
+firebaseApp.firestore().settings({ merge: true })
 export default firebaseApp.firestore()

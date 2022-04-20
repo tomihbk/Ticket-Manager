@@ -1,6 +1,6 @@
 import Vue from 'vue'
 // @ts-ignore
-import Vuetify from 'vuetify/lib/framework'
+import Vuetify from 'vuetify'
 // @ts-ignore
 import fr from 'vuetify/lib/locale/fr'
 
