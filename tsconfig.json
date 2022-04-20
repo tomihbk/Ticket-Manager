@@ -15,16 +15,15 @@
     "baseUrl": "src",
     "types": [
       "webpack-env",
-      "vuetify"
+      "vuetify",
+      "jest"
     ],
     "typeRoots": [
       "./node_modules/@types",
       "./node_modules/vuetify/types"
     ],
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     },
     "lib": [
       "esnext",
@@ -37,7 +36,6 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
-    "tests/**/*.ts",
     "tests/**/*.tsx"
   ],
   "exclude": [
