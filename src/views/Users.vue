@@ -58,6 +58,7 @@ import algoindex from '../algolia/clientsIndices'
 import firebase from 'firebase'
 
 export default Vue.extend({
+  name: 'users',
   data: () => ({
     footerProps: { 'items-per-page-options': [30, 50, 100] },
     search: '',

@@ -183,6 +183,7 @@ import firebase from 'firebase'
 import { imagesInterface } from 'types/types'
 
 export default Vue.extend({
+  name: 'manageTicket',
   data: () => ({
     ticket: null || {} as firebase.firestore.DocumentData,
     dialog: false,

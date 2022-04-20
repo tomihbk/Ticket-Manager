@@ -59,7 +59,9 @@ import algolia from '../../algolia/clientsIndices'
 import firebase from 'firebase'
 import RemoveNullData from '../../util/removeNullData'
 import { ticketDataUserCreatedInterface } from 'types/types'
+
 export default Vue.extend({
+  name: 'addUser',
   data () {
     return {
       clientData: {

@@ -29,6 +29,7 @@ import Vue from 'vue'
 import db from '../firebase/api'
 
 export default Vue.extend({
+  name: 'dashboard',
   data () {
     return {
       btnData: [

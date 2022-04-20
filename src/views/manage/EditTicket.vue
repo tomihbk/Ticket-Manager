@@ -67,6 +67,7 @@ import { ticketDataUserIdInterface } from 'types/types'
 import firebase from 'firebase'
 
 export default Vue.extend({
+  name: 'editTicket',
   data () {
     return {
       ticketType: ['Graphisme', 'Informatique', 'Web', 'Imprimerie'],

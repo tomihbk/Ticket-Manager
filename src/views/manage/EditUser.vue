@@ -61,6 +61,7 @@ import RemoveNullData from '../../util/removeNullData'
 import firebase from 'firebase'
 
 export default Vue.extend({
+  name: 'editUser',
   data: () => ({
     firestoreID: null || '',
     clientData: {

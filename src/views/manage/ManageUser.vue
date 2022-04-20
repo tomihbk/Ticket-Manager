@@ -80,6 +80,7 @@ import db from '../../firebase/api'
 import firebase from 'firebase'
 
 export default Vue.extend({
+  name: 'manageUser',
   data: () => ({
     client: {} as firebase.firestore.DocumentData | undefined,
     ticketList: [] as firebase.firestore.DocumentData

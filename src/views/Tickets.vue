@@ -70,6 +70,7 @@ import firebase from 'firebase'
 import openedTicketCountHandler from '../util/openedTicketCountHandler'
 
 export default Vue.extend({
+  name: 'tickets',
   data: () => ({
     ticketState: ['Nouveau', 'En cours', 'En attente de commande', 'En attente de client', 'A facturé', 'Fermé'],
     footerProps: { 'items-per-page-options': [30, 50, 100] },

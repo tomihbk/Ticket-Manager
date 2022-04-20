@@ -71,6 +71,7 @@ import { ticketDataUserIdInterface, imagesInterface, ticketDataUserCreatedInterf
 import RemoveNullData from '../../util/removeNullData'
 
 export default Vue.extend({
+  name: 'addTicket',
   data () {
     return {
       signPadIsShown: false,
