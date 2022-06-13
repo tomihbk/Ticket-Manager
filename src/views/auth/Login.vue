@@ -12,7 +12,7 @@
           </h1>
         </span>
 
-        <h1>Login</h1>
+        <h1>Login</h1><div class="text-caption"> Demo email : demo@gmail.com </div><div class="text-caption"> Demo password : Password_1234 </div>
         <v-form ref="form" class="ma-5 login-form">
           <v-text-field v-model="email" label="Email" :rules="[rules.required, rules.email]" filled></v-text-field>
           <v-text-field type="password" v-model="password" :rules="[rules.required]" label="Mot de Passe" filled @keyup.enter="validate"></v-text-field>
