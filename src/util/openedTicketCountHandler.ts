@@ -4,10 +4,21 @@ import firebase from 'firebase'
 const openedTicketCountHandler = async (ticketFirebaseId:string, currentState:string, oldState:string, isIncremented:boolean) => {
   if (oldState === 'Fermé' && currentState !== 'Fermé') {
     updateTicketCount(ticketFirebaseId, currentState, isIncremented)
+    return
   }
 
   if (oldState !== 'Fermé' && currentState === 'Fermé') {
     updateTicketCount(ticketFirebaseId, currentState, isIncremented)
+    return
+  }
+
+  try {
+    await db.collection('tickets').doc(ticketFirebaseId).update({
+      state: currentState,
+      oldstate: currentState
+    })
+  } catch (err) {
+    console.log(err)
   }
 }
 
