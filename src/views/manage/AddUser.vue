@@ -92,7 +92,7 @@ export default Vue.extend({
       } else {
         this.feedback = ''
 
-        this.clientData.created.at = firebase.firestore.FieldValue.serverTimestamp()
+        this.clientData.created.at = firebase.firestore.Timestamp.now()
 
         // This removes null data recursivly from javascript objects
         const dataWithoutNull:any = RemoveNullData(this.clientData)

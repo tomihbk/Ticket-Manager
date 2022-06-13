@@ -34,8 +34,8 @@
                 </tr>
                 <tr>
                   <td>Crée :</td>
-                  <td class="py-3">{{ getDataTimeUnix(ticket.created.at.seconds) }} <br /> Par {{ ticket.created.by.name }}
-                    {{ ticket.created.by.surname }}</td>
+                  <td class="py-3">{{ getDataTimeUnix(ticket.created && ticket.created.at.seconds) }} <br /> Par {{ ticket.created && ticket.created.by.name }}
+                    {{ ticket.created && ticket.created.by.surname }}</td>
                 </tr>
                 <tr>
                   <td>État :</td>
@@ -49,7 +49,7 @@
               <tbody>
                 <tr class="client-name" @click="openClientProfile">
                   <td>Nom :</td>
-                  <td class="py-3">{{ ticket.user.name }} {{ ticket.user.surname }}</td>
+                  <td class="py-3">{{ ticket.user && ticket.user.name }} {{ ticket.user && ticket.user.surname }}</td>
                 </tr>
               </tbody>
             </v-simple-table>
@@ -184,7 +184,7 @@ import { imagesInterface } from 'types/types'
 
 export default Vue.extend({
   data: () => ({
-    ticket: null || {} as firebase.firestore.DocumentData,
+    ticket: {} as firebase.firestore.DocumentData,
     dialog: false,
     selectedImage: null || {} as any,
     events: [] as any,

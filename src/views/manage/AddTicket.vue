@@ -171,7 +171,7 @@ export default Vue.extend({
         const clientFullName = await db.collection('clients').doc(this.ticketData.user.id).get()
         // Creation time will be server's date
         this.ticketData.created = {
-          at: firebase.firestore.FieldValue.serverTimestamp(),
+          at: firebase.firestore.Timestamp.now(),
           by: { id: currentLogedInUserID, ...technicianFullName.data() }
         }
 

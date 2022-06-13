@@ -14,8 +14,8 @@
 
         <h1>Sign Up</h1>
         <v-form ref="form" class="mt-5 mx-5 signup-form" @submit.prevent="signup">
-          <v-text-field v-model="name" label="Nom" :rules="[rules.required]" filled></v-text-field>
-          <v-text-field v-model="surname" label="Prénom" :rules="[rules.required]" filled></v-text-field>
+          <v-text-field v-model="name" label="Prénom" :rules="[rules.required]" filled></v-text-field>
+          <v-text-field v-model="surname" label="Nom" :rules="[rules.required]" filled></v-text-field>
           <v-text-field type="email" v-model="email" label="Email" :rules="[rules.required, rules.email]" filled></v-text-field>
           <v-text-field type="password" v-model="password" :rules="[rules.required,rules.strongPassword]" label="Mot de Passe" filled></v-text-field>
           <v-text-field type="password" v-model="confirmpassword" :rules="[rules.required, rules.identic]" label="Confirmation du mot de passe" filled></v-text-field>
