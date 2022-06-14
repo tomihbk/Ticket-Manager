@@ -45,15 +45,21 @@
           {{item.user.name}} {{item.user.surname}}
         </template>
         <template v-slot:[`item.actions`]="{ item }">
-          <v-icon small class="mr-2" @click="modifyTicket(item)">
-            mdi-pencil
-          </v-icon>
+          <v-tooltip bottom>
+              <template slot="activator" slot-scope="{ on }">
+                <span v-on="on">
+                  <v-icon small class="mr-2" @click="editItem(null,item)">
+                          mdi-pencil
+                  </v-icon>
+                  </span>
+              </template>
+              <span class="text-caption">Vous pouvez aussi double-clicker sur le ticket pour le modifier</span>
+          </v-tooltip>
           <v-icon small @click="deleteTicket(item)">
             mdi-delete
           </v-icon>
         </template>
       </v-data-table>
-
       <v-snackbar v-model="toaster.snackbar" :timeout="toaster.timeout" color="deep-purple accent-4" elevation="24">
         {{ toaster.text }}
       </v-snackbar>
@@ -156,7 +162,7 @@ export default Vue.extend({
     },
     editItem (mousevent:MouseEvent, selectedTicket:any) {
       // get item id and send via router prop to manage page
-      this.$router.push({ name: 'manageticket', params: { ticket_id: selectedTicket.item.id } })
+      this.$router.push({ name: 'manageticket', params: { ticket_id: selectedTicket.id || selectedTicket.item.id } })
     },
     deleteTicket (selectedTicket:number) {
       this.editedIndex = this.tickets.indexOf(selectedTicket)
